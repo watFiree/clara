@@ -1,0 +1,182 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id               String    @id @default(cuid())
+  authProvider     String    @default("local")
+  providerId       String?   @unique
+  stripeCustomerId String?   @unique
+  encryptedKey        String?
+  keyIv               String?
+  encryptedSignVector String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  conversations Conversation[]
+  settings      UserSettings?
+  usage         Usage[]
+  subscription  Subscription?
+  memories      Memory[]
+}
+
+model Conversation {
+  id        String                @id
+  title     String                @default("New session")
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
+  userId    String
+  user      User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  settings  ConversationSettings?
+}
+
+model ConversationSettings {
+  id              String       @id @default(cuid())
+  conversationId  String       @unique
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  memoryDisabled  Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  metadata       Json?
+  parts          String
+  role           MessageRole
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+enum MemoryCategory {
+  PERSONAL
+  EMOTIONAL
+  HEALTH
+  GOALS
+  COPING
+  CONTEXT
+}
+
+enum MemoryStatus {
+  OPEN
+  RESOLVED
+  SNOOZED
+  EXPIRED
+}
+
+model Memory {
+  id                   String         @id @default(cuid())
+  userId               String
+  user                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  encryptedContent     String
+  rotatedEmbedding     Unsupported("vector(1536)")?
+  category             MemoryCategory
+  status               MemoryStatus   @default(OPEN)
+  confidence           Float          @default(1.0)
+  sourceConversationId String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  @@index([userId])
+}
+
+model Usage {
+  id           String   @id @default(cuid())
+  model        String   @default("gpt-5.4-nano")
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+  totalTokens  Int      @default(0)
+  date         DateTime
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, model, date])
+  @@index([userId, date])
+}
+
+enum PlanId {
+  free
+  premium_lite
+  premium
+}
+
+enum FeatureKey {
+  MEMORY
+  MODEL
+}
+
+model Plan {
+  id            PlanId    @id
+  name          String
+  description   String
+  price         Int       // monthly in cents
+  tokenLimit    Int
+  stripePriceId String?   @unique
+  features      String[]
+  highlighted   Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  planFeatures  Feature[]
+}
+
+model Feature {
+  id      String     @id @default(cuid())
+  key     FeatureKey
+  planId  PlanId
+  plan    Plan       @relation(fields: [planId], references: [id], onDelete: Cascade)
+  enabled Boolean    @default(true)
+  config  Json?
+
+  @@unique([key, planId])
+  @@index([planId])
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeSubscriptionId String   @unique
+  stripePriceId        String
+  status               String   // active, canceled, past_due, trialing
+  plan                 PlanId
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean  @default(false)
+  tokenLimit           Int      // monthly token limit for this plan
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model UserSettings {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String?
+  gender         String?
+  tonePreference String   @default("warm")
+  memoryEnabled  Boolean  @default(true)
+  language       String   @default("en")
+  ageRange       String?
+  focusAreas     String[] @default([])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
