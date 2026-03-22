@@ -21,10 +21,10 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     if (!isChatRequestBody(body)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid request body" }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "Invalid request body" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const { messages, id } = body;
@@ -140,10 +140,16 @@ export async function POST(req: Request) {
         });
       },
     });
-  } catch {
-    return new Response(JSON.stringify({ error: "Failed to process chat" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({
+        error: "Failed to process chat",
+        cause: JSON.stringify(error),
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 }
