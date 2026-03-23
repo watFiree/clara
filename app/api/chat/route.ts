@@ -95,7 +95,7 @@ export async function POST(req: Request) {
     const result = streamText({
       model,
       messages: await convertToModelMessages(messages),
-      system: buildSystemPrompt(userSettings, { memoryEnabled }),
+      system: await buildSystemPrompt(userSettings, { memoryEnabled }),
       stopWhen: stepCountIs(Object.keys(tools).length * 2), //TODO: there is an edge case error when llm uses only tools the number of times it stops. In this case useChat sends messages again where last message is assistant parts with these toolcall -> it causes the same assisant message to be saved in database what then throws error when sending to llm (same 2 assistant messages next to eaach other)
       tools,
       async onFinish({ usage }) {

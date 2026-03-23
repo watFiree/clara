@@ -166,6 +166,27 @@ model Subscription {
   updatedAt            DateTime @updatedAt
 }
 
+enum PromptSectionKey {
+  ROLE
+  PERSONALITY
+  GUIDELINES
+  TERMINOLOGY
+  CLOSING
+  TOOLS_ASK_QUESTIONS
+  TOOLS_SAVE_MEMORY
+  TOOLS_GET_MEMORIES
+  TOOLS_UPDATE_MEMORY
+}
+
+model PromptSection {
+  id        String           @id @default(cuid())
+  key       PromptSectionKey @unique
+  content   String
+  version   Int              @default(1)
+  updatedAt DateTime         @updatedAt
+  createdAt DateTime         @default(now())
+}
+
 model UserSettings {
   id             String   @id @default(cuid())
   userId         String   @unique

@@ -1,38 +1,35 @@
 import type { UserSettings } from "@/app/generated/prisma/client";
-
-import { ROLE } from "./base";
-import { PERSONALITY } from "./personality";
-import { GUIDELINES } from "./guidelines";
-import { TERMINOLOGY } from "./terminology";
-import { CLOSING } from "./closing";
+import { PromptSectionKey } from "@/app/generated/prisma/client";
 import { buildUserContext } from "./user-context";
 import { buildToolInstructions } from "./tools";
+import { getPromptSections } from "./cache";
 
 /**
  * Assembles the full system prompt from modular sections,
  * optionally personalized with user settings.
+ * Sections are loaded from the database (with hardcoded fallbacks).
  */
-export function buildSystemPrompt(
+export async function buildSystemPrompt(
   settings?: UserSettings | null,
   overrides?: { memoryEnabled?: boolean },
-): string {
-  const sections = [ROLE, PERSONALITY, GUIDELINES, TERMINOLOGY, CLOSING];
+): Promise<string> {
+  const sections = await getPromptSections();
+
+  const parts = [
+    sections[PromptSectionKey.ROLE],
+    sections[PromptSectionKey.PERSONALITY],
+    sections[PromptSectionKey.GUIDELINES],
+    sections[PromptSectionKey.TERMINOLOGY],
+    sections[PromptSectionKey.CLOSING],
+  ];
 
   if (settings) {
-    sections.push(buildUserContext(settings));
+    parts.push(buildUserContext(settings));
     const memoryEnabled = overrides?.memoryEnabled ?? settings.memoryEnabled;
-    sections.push(buildToolInstructions(memoryEnabled));
+    parts.push(buildToolInstructions(memoryEnabled, sections));
   } else {
-    sections.push(buildToolInstructions(false));
+    parts.push(buildToolInstructions(false, sections));
   }
 
-  return sections.join("\n\n");
+  return parts.join("\n\n");
 }
-
-/**
- * Pre-built full system prompt for direct use (no personalization)
- */
-export const SYSTEM_PROMPT = buildSystemPrompt();
-
-// Export individual sections for custom compositions
-export { ROLE, PERSONALITY, GUIDELINES, TERMINOLOGY, CLOSING };

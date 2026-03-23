@@ -1,6 +1,15 @@
 import "dotenv/config";
-import { PrismaClient } from "../app/generated/prisma/client";
+import { PrismaClient, PromptSectionKey } from "../app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { ROLE } from "../lib/prompts/base";
+import { PERSONALITY } from "../lib/prompts/personality";
+import { GUIDELINES } from "../lib/prompts/guidelines";
+import { TERMINOLOGY } from "../lib/prompts/terminology";
+import { CLOSING } from "../lib/prompts/closing";
+import { ASK_QUESTIONS_INSTRUCTIONS } from "../lib/prompts/tools/ask-questions";
+import { SAVE_MEMORY_INSTRUCTIONS } from "../lib/prompts/tools/save-memory";
+import { GET_MEMORIES_INSTRUCTIONS } from "../lib/prompts/tools/get-memories";
+import { UPDATE_MEMORY_INSTRUCTIONS } from "../lib/prompts/tools/update-memory";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -63,6 +72,27 @@ async function main() {
       update: feature,
     });
     console.log(`Upserted feature: ${feature.key} for ${feature.planId}`);
+  }
+
+  const promptSections: { key: PromptSectionKey; content: string }[] = [
+    { key: PromptSectionKey.ROLE, content: ROLE },
+    { key: PromptSectionKey.PERSONALITY, content: PERSONALITY },
+    { key: PromptSectionKey.GUIDELINES, content: GUIDELINES },
+    { key: PromptSectionKey.TERMINOLOGY, content: TERMINOLOGY },
+    { key: PromptSectionKey.CLOSING, content: CLOSING },
+    { key: PromptSectionKey.TOOLS_ASK_QUESTIONS, content: ASK_QUESTIONS_INSTRUCTIONS },
+    { key: PromptSectionKey.TOOLS_SAVE_MEMORY, content: SAVE_MEMORY_INSTRUCTIONS },
+    { key: PromptSectionKey.TOOLS_GET_MEMORIES, content: GET_MEMORIES_INSTRUCTIONS },
+    { key: PromptSectionKey.TOOLS_UPDATE_MEMORY, content: UPDATE_MEMORY_INSTRUCTIONS },
+  ];
+
+  for (const section of promptSections) {
+    await prisma.promptSection.upsert({
+      where: { key: section.key },
+      create: section,
+      update: { content: section.content },
+    });
+    console.log(`Upserted prompt section: ${section.key}`);
   }
 }
 
