@@ -2,18 +2,12 @@ import { authkit, handleAuthkitHeaders } from "@workos-inc/authkit-nextjs";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { COOKIE_NAME, isCloudMode } from "@/config";
-
-function assignAnonCookie(response: NextResponse) {
-  response.cookies.set(COOKIE_NAME, crypto.randomUUID(), {
-    httpOnly: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 365,
-  });
-  return response;
-}
+import { assignAnonCookie, checkBasicAuth } from "@/lib/middleware";
 
 export default async function middleware(request: NextRequest) {
+  const basicAuthResponse = checkBasicAuth(request);
+  if (basicAuthResponse) return basicAuthResponse;
+
   if (isCloudMode) {
     const { session, headers } = await authkit(request);
 

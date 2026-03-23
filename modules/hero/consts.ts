@@ -14,7 +14,7 @@ export const animationConfig: Record<
   },
   pause: {
     nextPhase: "clara",
-    delay: 2000,
+    delay: 1250,
   },
   clara: {
     nextPhase: "done",

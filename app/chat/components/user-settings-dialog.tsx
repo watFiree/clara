@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -98,6 +98,21 @@ export const UserSettingsDialog = ({
 
   const s = { ...DEFAULTS, ...settings };
 
+  const [nameDraft, setNameDraft] = useState(s.name ?? "");
+
+  // Sync server value into draft when it changes (initial load / rollback)
+  useEffect(() => {
+    setNameDraft(s.name ?? "");
+  }, [s.name]);
+
+  // Debounce name updates
+  useEffect(() => {
+    const trimmed = nameDraft || null;
+    if (trimmed === (s.name ?? null)) return;
+    const id = setTimeout(() => update({ name: trimmed }), 500);
+    return () => clearTimeout(id);
+  }, [nameDraft]);
+
   const toggleFocusArea = (area: string) => {
     const next = s.focusAreas.includes(area)
       ? s.focusAreas.filter((a) => a !== area)
@@ -126,10 +141,8 @@ export const UserSettingsDialog = ({
               <Field label="What should Clara call you?">
                 <Input
                   placeholder="Your name"
-                  value={s.name ?? ""}
-                  onChange={(e) =>
-                    update({ name: e.target.value || null })
-                  }
+                  value={nameDraft}
+                  onChange={(e) => setNameDraft(e.target.value)}
                 />
               </Field>
 
