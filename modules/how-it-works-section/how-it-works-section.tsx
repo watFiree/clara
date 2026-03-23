@@ -16,7 +16,7 @@ export function HowItWorksSection() {
           How it works
         </h2>
         <p className="mx-auto mt-4 max-w-md text-center text-muted-foreground">
-          No sign-up forms. No complicated setup. Just you and Clara.
+          Showing up for yourself doesn&apos;t have to be complicated.
         </p>
 
         <div ref={ref} className="relative mt-20">

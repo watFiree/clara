@@ -3,25 +3,26 @@ import { Shield, Code2, Heart, Sparkles } from "lucide-react";
 export const values = [
   {
     icon: Shield,
-    title: "Privacy-first",
+    title: "Your space, your rules",
     description:
-      "Your data stays yours. Connected only by a code you control. No tracking, no selling, no sharing.",
+      "No tracking, no data selling. You connect with a code only you know — that's it.",
   },
   {
     icon: Code2,
-    title: "Open source",
+    title: "Nothing to hide",
     description:
-      "Transparent by design. Anyone can inspect, contribute, or self-host.",
+      "Clara is source-available. You can see exactly how it works, host it yourself, or help make it better.",
   },
   {
     icon: Heart,
-    title: "Wellbeing-focused",
+    title: "For the everyday stuff",
     description:
-      "Here to support your daily wellbeing, not to replace professional care.",
+      "Not a replacement for professional help — a companion for the daily moments when you just need to pause and reflect.",
   },
   {
     icon: Sparkles,
-    title: "Warm & approachable",
-    description: "Like a thoughtful friend, not a clinical tool.",
+    title: "Feels like talking to a friend",
+    description:
+      "No clinical language, no rigid scripts. Just a warm, honest conversation.",
   },
 ];

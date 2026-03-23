@@ -10,39 +10,39 @@ import {
 export const features = [
   {
     icon: Brain,
-    title: "Memory",
+    title: "A space that knows you",
     description:
-      "Clara remembers what matters to you across sessions — your goals, your struggles, what helps. Every conversation builds on the last.",
+      "You don't have to start from scratch every time. Clara picks up where you left off — your context, your goals, what you've been working through.",
     highlight: true,
   },
   {
     icon: Lock,
-    title: "Encrypted conversations",
+    title: "Truly private",
     description:
-      "Your messages are encrypted end-to-end. Not even we can read them. Your thoughts stay truly private.",
+      "Your conversations are encrypted and protected from leaks and unauthorized access. What you share here stays safe.",
   },
   {
     icon: History,
-    title: "Session history",
+    title: "Look back, see growth",
     description:
-      "Revisit past check-ins anytime. See how you've grown and what patterns emerge over weeks and months.",
+      "Revisit past check-ins and notice how far you've come. Sometimes progress is hard to see day-to-day, but it adds up.",
   },
   {
     icon: Wrench,
-    title: "Smart tools",
+    title: "Gentle nudges when you need them",
     description:
-      "Clara can suggest exercises, breathing techniques, journaling prompts, and more — tailored to how you're feeling right now.",
+      "Breathing exercises, journaling prompts, small reframes — Clara offers practical things you can try in the moment, not generic advice.",
   },
   {
     icon: BookOpen,
-    title: "Guided reflections",
+    title: "Structure when it helps",
     description:
-      "Structured prompts to help you dig deeper when free-form feels too open. Great for building a reflection habit.",
+      "Some days, a blank page feels overwhelming. Guided reflections give you a starting point when you're not sure where to begin.",
   },
   {
     icon: Palette,
-    title: "Personalised experience",
+    title: "Your pace, your way",
     description:
-      "Clara adapts to your style. Whether you want quick check-ins or deep dives, it meets you where you are.",
+      "Quick two-minute check-in or a longer conversation — you decide how deep to go. There's no wrong way to use this.",
   },
 ];

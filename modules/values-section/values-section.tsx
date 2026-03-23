@@ -15,10 +15,10 @@ export function ValuesSection() {
       className="mx-auto max-w-5xl px-6 py-28 sm:py-36"
     >
       <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-        Built on what matters
+        What we believe in
       </h2>
       <p className="mx-auto mt-4 max-w-lg text-center text-muted-foreground">
-        Every decision we make comes back to four core principles.
+        The things that shape how Clara works — and why it feels different.
       </p>
 
       <div
@@ -37,12 +37,12 @@ export function ValuesSection() {
           return (
             <motion.div
               key={v.title}
-              initial={{ opacity: 0, y: 40 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
               transition={{
-                delay: i * 0.12,
-                duration: 0.5,
-                ease: "easeOut",
+                delay: i * 0.08,
+                duration: 0.7,
+                ease: [0.25, 0.1, 0.25, 1],
               }}
               className={`group relative overflow-hidden rounded-2xl border border-border bg-card p-8 transition-all hover:shadow-lg ${spanClass}`}
             >

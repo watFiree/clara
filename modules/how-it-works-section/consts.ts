@@ -4,22 +4,22 @@ export const steps = [
   {
     num: "01",
     icon: MessageCircle,
-    title: "Start a session",
+    title: "Say what's on your mind",
     description:
-      "Open Clara and begin a free-form check-in whenever you feel like it. No sign-ups, no setup — just start talking.",
+      "No prompts to fill out, no forms to complete. Just open Clara and start talking - about your day, a feeling, anything.",
   },
   {
     num: "02",
     icon: Sparkles,
-    title: "Reflect & explore",
+    title: "Go at your own pace",
     description:
-      "Clara asks thoughtful questions and helps you explore how you're feeling. It adapts to your mood and pace.",
+      "Sometimes you need to vent. Sometimes you want to dig deeper. Clara follows your lead and asks the right questions when they help.",
   },
   {
     num: "03",
     icon: TrendingUp,
-    title: "Grow over time",
+    title: "Notice what changes",
     description:
-      "Look back on past sessions to notice patterns and celebrate your progress. Clara remembers so you can focus on what matters.",
+      "Over days and weeks, small patterns start to show up. The things that drain you, the things that lift you — they become clearer.",
   },
 ];

@@ -30,7 +30,7 @@ export function Footer() {
         </Link>
       </div>
       <p className="mt-3 text-xs">
-        Open source &middot; Privacy-first &middot; Made with care
+        Source-available &middot; Private by default &middot; Made with care
       </p>
     </footer>
   );

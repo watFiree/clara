@@ -21,7 +21,7 @@ export function PrivacySection() {
               action="underline"
               color="#ffbc47"
               strokeWidth={3}
-              isView
+              isView={isInView}
               padding={4}
             >
               always
@@ -29,8 +29,8 @@ export function PrivacySection() {
             .
           </h2>
           <p className="mt-4 max-w-md text-muted-foreground">
-            Privacy isn&apos;t an afterthought. It&apos;s the foundation
-            everything else is built on.
+            You shouldn&apos;t have to wonder who&apos;s reading your most
+            honest thoughts. So we made sure nobody can.
           </p>
         </div>
 

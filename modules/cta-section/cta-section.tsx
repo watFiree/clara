@@ -22,10 +22,10 @@ export function CtaSection() {
         </motion.div>
 
         <h2 className="mt-8 text-3xl font-bold tracking-tight sm:text-4xl">
-          Ready to check in with yourself?
+          You deserve a moment for yourself
         </h2>
         <p className="mx-auto mt-4 max-w-sm text-muted-foreground">
-          It only takes a moment. No account needed - just start talking.
+          No account, no commitment. Just a conversation whenever you need one.
         </p>
         <div className="mt-8">
           <Button

@@ -3,18 +3,18 @@ import { Lock, Eye, Server, GitBranch } from "lucide-react";
 export const privacyPoints = [
   {
     icon: Lock,
-    text: "Connected only by a code you know. No one else can access your sessions.",
+    text: "Your sessions are locked behind a code only you know. There's no back door.",
   },
   {
     icon: Eye,
-    text: "Open source means you can verify exactly how your data is handled.",
+    text: "Every line of code is public. You don't have to trust our words — check for yourself.",
   },
   {
     icon: Server,
-    text: "Self-hostable. Your wellbeing data never has to leave your own server.",
+    text: "Want full control? Host Clara on your own server. Your data never has to leave your hands.",
   },
   {
     icon: GitBranch,
-    text: "Transparent by design. Inspect, contribute, or fork at any time.",
+    text: "Built in the open. Suggest changes, report issues, or make it your own.",
   },
 ];

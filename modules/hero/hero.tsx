@@ -9,6 +9,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { animationConfig } from "./consts";
+import { isCloudMode } from "@/config";
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
@@ -143,7 +144,7 @@ export function Hero() {
             }}
             className="mt-4 max-w-md text-lg text-muted-foreground sm:text-xl"
           >
-            Your personal wellbeing assistant
+            A quiet space to check in with how you&apos;re really doing
           </motion.p>
         </div>
 
@@ -166,7 +167,9 @@ export function Hero() {
             asChild
             className="h-12 rounded-full px-8 text-sm font-semibold shadow-md transition-transform hover:scale-105 active:scale-95"
           >
-            <Link href="/chat">Try for free</Link>
+            <Link href="/chat">
+              {isCloudMode ? "Try for free" : "Open app"}
+            </Link>
           </Button>
           <Button
             asChild
