@@ -19,6 +19,7 @@ export function Hero() {
   });
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const y = useTransform(scrollYProgress, [0, 0.8], [0, -80]);
+  const discoverOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
   const animationPhase = useHomepageStore((s) => s.animationPhase);
   const setAnimationPhase = useHomepageStore((s) => s.setAnimationPhase);
 
@@ -41,19 +42,23 @@ export function Hero() {
       ref={ref}
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden"
     >
-      {/* Ambient glow */}
       <motion.div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 will-change-[opacity]"
         style={{ opacity }}
       >
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-primary/15 blur-[120px]" />
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in srgb, var(--primary) 20%, transparent) 0%, transparent 75%)",
+          }}
+        />
       </motion.div>
 
       <motion.div
-        className="relative z-10 flex flex-col items-center gap-8"
+        className="relative z-10 flex flex-col items-center gap-8 will-change-[transform,opacity]"
         style={{ opacity, y }}
       >
-        {/* Orb - falls from top and bounces */}
         <motion.div
           initial={{ y: -400, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -74,60 +79,61 @@ export function Hero() {
               repeat: Infinity,
               duration: 2.5,
               ease: "easeInOut",
-              delay: 1.5,
+              delay: 1.8,
             }}
           >
             <BrandBubble className="size-20 sm:size-28" />
           </motion.div>
         </motion.div>
 
-        {/* Typing headline — always rendered, invisible placeholder keeps layout stable */}
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-5xl font-bold tracking-tight sm:text-7xl lg:text-8xl">
-            {animationPhase === "landing" && (
-              <span className="invisible">Meet clara</span>
-            )}
+          <h1 className="relative text-5xl font-bold tracking-tight sm:text-7xl lg:text-8xl">
+            <span className="invisible" aria-hidden>
+              Meet clara
+            </span>
 
-            {animationPhase === "meet" && (
-              <TypingAnimation
-                typeSpeed={140}
-                startOnView={false}
-                showCursor
-                cursorStyle="line"
-                className="text-foreground"
-                as="span"
-              >
-                Meet
-              </TypingAnimation>
-            )}
+            <span className="absolute inset-0 flex items-center justify-center">
+              {animationPhase === "meet" && (
+                <TypingAnimation
+                  typeSpeed={140}
+                  startOnView={false}
+                  showCursor
+                  cursorStyle="line"
+                  className="text-foreground"
+                  as="span"
+                >
+                  Meet
+                </TypingAnimation>
+              )}
 
-            {animationPhase === "pause" && (
-              <span className="text-foreground">
-                Meet
-                <span className="inline-block animate-blink-cursor ml-0.5">
-                  |
+              {animationPhase === "pause" && (
+                <span className="text-foreground">
+                  Meet
+                  <span className="inline-block animate-blink-cursor ml-0.5">
+                    |
+                  </span>
                 </span>
-              </span>
-            )}
+              )}
 
-            {(animationPhase === "clara" || animationPhase === "done") && (
-              <span>
-                <span className="text-foreground">Meet </span>
-                {animationPhase === "clara" ? (
-                  <TypingAnimation
-                    typeSpeed={140}
-                    startOnView={false}
-                    showCursor
-                    cursorStyle="line"
-                    as="span"
-                  >
-                    clara
-                  </TypingAnimation>
-                ) : (
-                  <span>clara</span>
-                )}
-              </span>
-            )}
+              {(animationPhase === "clara" || animationPhase === "done") && (
+                <span>
+                  <span className="text-foreground">Meet </span>
+                  {animationPhase === "clara" ? (
+                    <TypingAnimation
+                      typeSpeed={140}
+                      startOnView={false}
+                      showCursor
+                      cursorStyle="line"
+                      as="span"
+                    >
+                      clara
+                    </TypingAnimation>
+                  ) : (
+                    <span>clara</span>
+                  )}
+                </span>
+              )}
+            </span>
           </h1>
 
           {/* Subtitle — always in DOM, animated via opacity/y */}
@@ -186,8 +192,8 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2.5 }}
-        style={{ opacity: useTransform(scrollYProgress, [0, 0.15], [1, 0]) }}
-        className="absolute bottom-10 flex flex-col items-center gap-2 text-muted-foreground"
+        style={{ opacity: discoverOpacity }}
+        className="absolute bottom-10 flex flex-col items-center gap-2 text-muted-foreground will-change-[opacity]"
       >
         <span className="text-xs tracking-widest uppercase">Discover</span>
         <motion.div

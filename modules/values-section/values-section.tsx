@@ -44,7 +44,7 @@ export function ValuesSection() {
                 duration: 0.7,
                 ease: [0.25, 0.1, 0.25, 1],
               }}
-              className={`group relative overflow-hidden rounded-2xl border border-border bg-card p-8 transition-all hover:shadow-lg ${spanClass}`}
+              className={`group relative overflow-hidden rounded-2xl border border-border bg-card p-8 transition-shadow hover:shadow-lg ${spanClass}`}
             >
               {/* Subtle gradient accent */}
               <div

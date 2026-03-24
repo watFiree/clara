@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 import { motion, useInView } from "motion/react";
-import { RevealSection } from "@/components/reveal-section";
 import { Highlighter } from "@/components/ui/highlighter";
 import { privacyPoints } from "./consts";
 
@@ -11,10 +10,15 @@ export function PrivacySection() {
   const isInView = useInView(ref, { amount: 0.3, once: true });
 
   return (
-    <RevealSection className="mx-auto max-w-5xl px-6 py-28 sm:py-36">
+    <section ref={ref} className="mx-auto max-w-5xl px-6 py-28 sm:py-36">
       <div className="flex flex-col items-center gap-16 lg:flex-row lg:items-start lg:gap-20">
         {/* Left */}
-        <div className="flex-1 text-center lg:text-left">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+          transition={{ duration: 0.5 }}
+          className="flex-1 text-center lg:text-left"
+        >
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Your data is yours <br />
             <Highlighter
@@ -32,16 +36,16 @@ export function PrivacySection() {
             You shouldn&apos;t have to wonder who&apos;s reading your most
             honest thoughts. So we made sure nobody can.
           </p>
-        </div>
+        </motion.div>
 
         {/* Right - points */}
-        <div ref={ref} className="flex flex-1 flex-col gap-6">
+        <div className="flex flex-1 flex-col gap-6">
           {privacyPoints.map((p, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: 30 }}
               animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
-              transition={{ delay: i * 0.12, duration: 0.5 }}
+              transition={{ delay: 0.1 + i * 0.12, duration: 0.5 }}
               className="flex items-start gap-4"
             >
               <div className="mt-0.5 shrink-0 rounded-lg bg-primary/10 p-2 text-primary">
@@ -54,6 +58,6 @@ export function PrivacySection() {
           ))}
         </div>
       </div>
-    </RevealSection>
+    </section>
   );
 }
