@@ -11,11 +11,13 @@ import type {
   AskQuestionsInput,
   AskQuestionsOutput,
 } from "@/lib/tools/ask-questions/consts";
+import { Tool, UIToolInvocation } from "ai";
+import { AskQuestionsWizardSkeleton } from "./ask-questions-wizard-skeleton";
 
 type AskQuestionsWizardProps = {
   toolCallId: string;
   input: AskQuestionsInput;
-  state: string;
+  state: UIToolInvocation<Tool>["state"];
   output?: AskQuestionsOutput;
   addToolOutput: (args: {
     tool: "askQuestions";
@@ -37,6 +39,10 @@ export function AskQuestionsWizard({
 
   if (state === "output-available" && output) {
     return <CompletedSummary title={input.title} answers={output.answers} />;
+  }
+
+  if (state === "input-streaming") {
+    return <AskQuestionsWizardSkeleton input={input} />;
   }
 
   const questions = input.questions;
