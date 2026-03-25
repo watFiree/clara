@@ -27,9 +27,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { isUserSettingsResponse } from "@/lib/types/settings";
-import { UserSettingsDialog } from "./user-settings-dialog";
-import { BillingDialog } from "./billing-dialog";
+import { UserSettingsDialog } from "../user-settings-dialog";
+import { BillingDialog } from "../billing-dialog";
 import { isCloudMode } from "@/config";
+import Link from "next/link";
 
 export const SidebarUserButton = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -97,10 +98,10 @@ export const SidebarUserButton = () => {
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <a href="/auth/login">
-                  <LogInIcon className="size-4" />
-                  Sign in
-                </a>
+                <Link href="/auth/login" className="text-primary font-bold">
+                  <LogInIcon className="size-4 text-primary" />
+                  Get Full Access
+                </Link>
               </DropdownMenuItem>
             </>
           )}
@@ -109,10 +110,10 @@ export const SidebarUserButton = () => {
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <a href="/auth/logout">
+                <Link href="/auth/logout">
                   <LogOutIcon className="size-4" />
                   Sign out
-                </a>
+                </Link>
               </DropdownMenuItem>
             </>
           )}
