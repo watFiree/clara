@@ -27,6 +27,18 @@ import {
 import { SaveMemoryIndicator } from "./save-memory-indicator";
 import { GetMemoriesIndicator } from "./get-memories-indicator";
 import { UpdateMemoryIndicator } from "./update-memory-indicator";
+import { PromptMessageCard } from "./prompt-message-card";
+
+function hasPromptId(
+  value: unknown,
+): value is { promptId: string } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "promptId" in value &&
+    typeof value.promptId === "string"
+  );
+}
 
 type AddToolOutput = (args: {
   tool: "askQuestions";
@@ -140,27 +152,33 @@ export const MessageList = ({
               <UserBubble className="size-6" />
               <Message from={message.role}>
                 <MessageContent>
-                  {message.parts.map((part, index) => {
-                    if (part.type === "text") {
-                      return (
-                        <MessageResponse key={index}>
-                          {part.text}
-                        </MessageResponse>
-                      );
-                    }
+                  {hasPromptId(message.metadata) ? (
+                    <PromptMessageCard
+                      promptId={message.metadata.promptId}
+                    />
+                  ) : (
+                    message.parts.map((part, index) => {
+                      if (part.type === "text") {
+                        return (
+                          <MessageResponse key={index}>
+                            {part.text}
+                          </MessageResponse>
+                        );
+                      }
 
-                    if (part.type === "file") {
-                      return (
-                        <Attachment
-                          key={index}
-                          data={{ ...part, id: String(index) }}
-                        >
-                          <AttachmentPreview />
-                        </Attachment>
-                      );
-                    }
-                    return null;
-                  })}
+                      if (part.type === "file") {
+                        return (
+                          <Attachment
+                            key={index}
+                            data={{ ...part, id: String(index) }}
+                          >
+                            <AttachmentPreview />
+                          </Attachment>
+                        );
+                      }
+                      return null;
+                    })
+                  )}
                 </MessageContent>
               </Message>
             </div>

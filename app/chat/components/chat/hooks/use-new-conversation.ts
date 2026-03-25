@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useShallow } from "zustand/react/shallow";
-import { useChatStore } from "@/lib/store/chat-store";
+import { useChatStore, type PendingMessage } from "@/lib/store/chat-store";
 import { createConversationResponseSchema } from "@/lib/types/conversations";
 
 export const useNewConversation = () => {
@@ -14,7 +14,7 @@ export const useNewConversation = () => {
   const pendingMemoryDisabled = useChatStore((s) => s.pendingMemoryDisabled);
 
   const createConversation = useMutation({
-    mutationFn: async (messageText: string) => {
+    mutationFn: async (pending: PendingMessage) => {
       const res = await fetch("/api/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -31,15 +31,15 @@ export const useNewConversation = () => {
         });
       }
 
-      return { id: parsed.id, messageText };
+      return { id: parsed.id, pending };
     },
-    onSuccess: async ({ id, messageText }) => {
+    onSuccess: async ({ id, pending }) => {
       await queryClient.invalidateQueries({ queryKey: ["conversations"] });
       await queryClient.invalidateQueries({
         queryKey: ["conversation-settings", id],
       });
       setActiveConversationId(id);
-      setNewChatPendingMessage(messageText);
+      setNewChatPendingMessage(pending);
     },
   });
 

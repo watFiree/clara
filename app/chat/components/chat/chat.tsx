@@ -3,7 +3,7 @@
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { ChatInput } from "./chat-input";
 import { MessageList } from "../message-list";
-import { NewChat } from "../new-chat";
+import { EmptyChat } from "../empty-chat/empty-chat";
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useChatStore } from "@/lib/store/chat-store";
@@ -25,31 +25,50 @@ export const Chat = () => {
 
   useEffect(() => {
     if (newChatPendingMessage) {
-      sendMessage({ text: newChatPendingMessage });
-      setNewChatPendingMessage("");
+      sendMessage({
+        text: newChatPendingMessage.text,
+        ...(newChatPendingMessage.metadata && {
+          metadata: newChatPendingMessage.metadata,
+        }),
+      });
+      setNewChatPendingMessage(null);
     }
   }, [sendMessage, newChatPendingMessage, setNewChatPendingMessage]);
 
   const [text, setText] = useState("");
 
-  const handleExistingConversationSubmit = (message: PromptInputMessage) => {
-    sendMessage({ text: message.text, files: message.files });
+  const handleExistingConversationSubmit = (
+    message: PromptInputMessage,
+    metadata?: Record<string, unknown>,
+  ) => {
+    sendMessage({
+      text: message.text,
+      files: message.files,
+      ...(metadata && { metadata }),
+    });
     setText("");
   };
-  const handleNewConversationSubmit = async (message: PromptInputMessage) => {
+
+  const handleNewConversationSubmit = async (
+    message: PromptInputMessage,
+    metadata?: Record<string, unknown>,
+  ) => {
     try {
-      await createConversation.mutateAsync(message.text);
+      await createConversation.mutateAsync({ text: message.text, metadata });
       setText("");
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleSubmit = async (message: PromptInputMessage) => {
+  const handleSubmit = async (
+    message: PromptInputMessage,
+    metadata?: Record<string, unknown>,
+  ) => {
     if (activeConversationId) {
-      handleExistingConversationSubmit(message);
+      handleExistingConversationSubmit(message, metadata);
     } else {
-      await handleNewConversationSubmit(message);
+      await handleNewConversationSubmit(message, metadata);
     }
   };
 
@@ -78,7 +97,11 @@ export const Chat = () => {
           addToolOutput={addToolOutput}
         />
       ) : (
-        <NewChat onPromptSelect={(text) => handleSubmit({ text, files: [] })} />
+        <EmptyChat
+          onPromptSelect={(text, promptId) =>
+            handleSubmit({ text, files: [] }, { promptId })
+          }
+        />
       )}
       <div className="shrink-0">
         <ChatInput

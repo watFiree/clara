@@ -31,7 +31,7 @@ export const useMessagesSync = ({
       const messages = transformDbMessages(data.messages);
       return messages;
     },
-    enabled: Boolean(activeConversationId) && !newChatPendingMessage.length,
+    enabled: Boolean(activeConversationId) && !newChatPendingMessage,
   });
 
   useEffect(() => {
