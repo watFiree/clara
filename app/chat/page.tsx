@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { Chat } from "./components/chat/chat";
-import { ChatSidebar } from "./components/chat-sidebar";
-import { MobileHeader } from "./components/mobile-header";
+import { ChatSidebar } from "./components/sidebar/sidebar";
+import { MobileHeader } from "./components/mobile-header/mobile-header";
 import { ViewsManager } from "./components/views-manager";
 
 const ChatPage = () => {

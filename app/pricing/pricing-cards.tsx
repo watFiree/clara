@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { type Plan } from "@/lib/stripe/plans";
 import { isStripeUrlResponse } from "@/lib/types/stripe";
+import Link from "next/link";
 
 interface PricingCardsProps {
   plans: Plan[];
@@ -35,9 +36,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
         <Card
           key={plan.id}
           className={
-            plan.highlighted
-              ? "relative border-primary shadow-lg"
-              : "relative"
+            plan.highlighted ? "relative border-primary shadow-lg" : "relative"
           }
         >
           {plan.highlighted && (
@@ -65,10 +64,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
           <CardContent className="flex-1">
             <ul className="space-y-2.5">
               {plan.features.map((feature) => (
-                <li
-                  key={feature}
-                  className="flex items-start gap-2 text-sm"
-                >
+                <li key={feature} className="flex items-start gap-2 text-sm">
                   <CheckIcon className="mt-0.5 size-4 shrink-0 text-primary" />
                   {feature}
                 </li>
@@ -87,7 +83,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
               </Button>
             ) : (
               <Button className="w-full" variant="outline" asChild>
-                <a href="/chat">Get started</a>
+                <Link href="/chat">Get started</Link>
               </Button>
             )}
           </CardFooter>
