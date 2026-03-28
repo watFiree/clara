@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useShallow } from "zustand/react/shallow";
 import { useChatStore, type PendingMessage } from "@/lib/store/chat-store";
 import { createConversationResponseSchema } from "@/lib/types/conversations";
+import { ApiError } from "@/lib/errors";
 
 export const useNewConversation = () => {
   const queryClient = useQueryClient();
@@ -19,7 +20,11 @@ export const useNewConversation = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
-      if (!res.ok) throw new Error("Creation failed");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        if (body?.error) throw new ApiError(body.error);
+        throw new Error("Creation failed");
+      }
       const data = await res.json();
       const parsed = await createConversationResponseSchema.parseAsync(data);
 

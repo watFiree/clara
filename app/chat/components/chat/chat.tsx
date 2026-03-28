@@ -9,6 +9,9 @@ import { useShallow } from "zustand/react/shallow";
 import { useChatStore } from "@/lib/store/chat-store";
 import { useChat } from "./hooks/use-chat";
 import { useNewConversation } from "./hooks/use-new-conversation";
+import { LimitReachedDialog } from "./limit-reached-dialog";
+import { isCloudMode } from "@/config";
+import { ApiError } from "@/lib/errors";
 
 export const Chat = () => {
   const activeConversationId = useChatStore(
@@ -36,6 +39,7 @@ export const Chat = () => {
   }, [sendMessage, newChatPendingMessage, setNewChatPendingMessage]);
 
   const [text, setText] = useState("");
+  const [limitDialogOpen, setLimitDialogOpen] = useState(false);
 
   const handleExistingConversationSubmit = (
     message: PromptInputMessage,
@@ -57,7 +61,14 @@ export const Chat = () => {
       await createConversation.mutateAsync({ text: message.text, metadata });
       setText("");
     } catch (error) {
-      console.error(error);
+      if (
+        error instanceof ApiError &&
+        error.code === "CONVERSATIONS_LIMIT_REACHED"
+      ) {
+        setLimitDialogOpen(true);
+      } else {
+        console.error(error);
+      }
     }
   };
 
@@ -89,30 +100,38 @@ export const Chat = () => {
     isSyncing;
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col rounded-xl bg-background shadow-sm">
-      {messages.length > 0 ? (
-        <MessageList
-          messages={messages}
-          status={status}
-          addToolOutput={addToolOutput}
+    <>
+      {isCloudMode ? (
+        <LimitReachedDialog
+          open={limitDialogOpen}
+          onOpenChange={setLimitDialogOpen}
         />
-      ) : (
-        <EmptyChat
-          onPromptSelect={(text, promptId) =>
-            handleSubmit({ text, files: [] }, { promptId })
-          }
-        />
-      )}
-      <div className="shrink-0">
-        <ChatInput
-          isSubmitDisabled={isSubmitDisabled}
-          onSubmit={handleSubmit}
-          onTextChange={handleTextChange}
-          onTranscriptionChange={handleTranscriptionChange}
-          status={status}
-          text={text}
-        />
+      ) : null}
+      <div className="relative flex min-h-0 flex-1 flex-col rounded-xl bg-background shadow-sm">
+        {messages.length > 0 ? (
+          <MessageList
+            messages={messages}
+            status={status}
+            addToolOutput={addToolOutput}
+          />
+        ) : (
+          <EmptyChat
+            onPromptSelect={(text, promptId) =>
+              handleSubmit({ text, files: [] }, { promptId })
+            }
+          />
+        )}
+        <div className="shrink-0">
+          <ChatInput
+            isSubmitDisabled={isSubmitDisabled}
+            onSubmit={handleSubmit}
+            onTextChange={handleTextChange}
+            onTranscriptionChange={handleTranscriptionChange}
+            status={status}
+            text={text}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 };

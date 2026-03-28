@@ -1,3 +1,5 @@
+import { Language } from "@/app/generated/prisma/browser";
+
 export type UserSettings = {
   id: string;
   userId: string;
@@ -5,7 +7,7 @@ export type UserSettings = {
   gender: string | null;
   tonePreference: string;
   memoryEnabled: boolean;
-  language: string;
+  language: Language;
   ageRange: string | null;
   focusAreas: string[];
   createdAt: string;
@@ -32,7 +34,7 @@ export type UpdateSettingsBody = {
   gender?: string | null;
   tonePreference?: string;
   memoryEnabled?: boolean;
-  language?: string;
+  language?: Language;
   ageRange?: string | null;
   focusAreas?: string[];
 };
@@ -54,7 +56,11 @@ export function isUpdateSettingsBody(
     return false;
   if ("memoryEnabled" in data && typeof data.memoryEnabled !== "boolean")
     return false;
-  if ("language" in data && typeof data.language !== "string") return false;
+  if (
+    "language" in data &&
+    !Object.values<string>(Language).includes(String(data.language))
+  )
+    return false;
   if (
     "ageRange" in data &&
     typeof data.ageRange !== "string" &&
@@ -104,11 +110,11 @@ export const FOCUS_AREA_OPTIONS = [
   { value: "work-life-balance", label: "Work-life Balance" },
 ] as const;
 
-export const LANGUAGE_OPTIONS = [
-  { value: "en", label: "English" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "pl", label: "Polish" },
-  { value: "pt", label: "Portuguese" },
-] as const;
+export const LANGUAGE_OPTIONS: readonly { value: Language; label: string }[] = [
+  { value: Language.en, label: "English" },
+  { value: Language.es, label: "Spanish" },
+  { value: Language.fr, label: "French" },
+  { value: Language.de, label: "German" },
+  { value: Language.pl, label: "Polish" },
+  { value: Language.pt, label: "Portuguese" },
+];

@@ -166,6 +166,15 @@ model Subscription {
   updatedAt            DateTime @updatedAt
 }
 
+enum Language {
+  en
+  es
+  fr
+  de
+  pl
+  pt
+}
+
 enum PromptSectionKey {
   ROLE
   PERSONALITY
@@ -195,7 +204,7 @@ model UserSettings {
   gender         String?
   tonePreference String   @default("warm")
   memoryEnabled  Boolean  @default(true)
-  language       String   @default("en")
+  language       Language @default(en)
   ageRange       String?
   focusAreas     String[] @default([])
   createdAt      DateTime @default(now())

@@ -7,8 +7,9 @@ import {
   WindIcon,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { Language } from "@/app/generated/prisma/browser";
 
-type Translations = Record<string, string>;
+type Translations = Record<Language, string>;
 
 export interface WellbeingPrompt {
   id: string;
@@ -36,10 +37,10 @@ interface ResolvedGreeting {
   subtitle: string;
 }
 
-const t = (translations: Translations, lang: string): string =>
-  translations[lang] ?? translations.en;
+const t = (translations: Translations, lang: Language): string =>
+  translations[lang];
 
-const LANGUAGE_NAMES: Record<string, string> = {
+const LANGUAGE_NAMES: Partial<Record<Language, string>> = {
   es: "Spanish",
   fr: "French",
   de: "German",
@@ -530,7 +531,7 @@ const allPrompts: WellbeingPrompt[] = [
 
 export function getPromptById(
   id: string,
-  lang: string,
+  lang: Language,
 ): ResolvedWellbeingPrompt | null {
   const prompt = allPrompts.find((p) => p.id === id);
   if (!prompt) return null;
@@ -553,7 +554,7 @@ function pickFromRemainingPool(exclude: WellbeingPrompt[]): WellbeingPrompt {
 
 function resolvePrompt(
   prompt: WellbeingPrompt,
-  lang: string,
+  lang: Language,
 ): ResolvedWellbeingPrompt {
   const langSuffix = LANGUAGE_NAMES[lang];
   return {
@@ -567,7 +568,7 @@ function resolvePrompt(
   };
 }
 
-export function getWellbeingPrompts(lang: string): ResolvedWellbeingPrompt[] {
+export function getWellbeingPrompts(lang: Language): ResolvedWellbeingPrompt[] {
   const hour = new Date().getHours();
 
   let picks: WellbeingPrompt[];
@@ -831,7 +832,7 @@ const greetingsNight: Greeting[] = [
   },
 ];
 
-export function getGreeting(lang: string): ResolvedGreeting {
+export function getGreeting(lang: Language): ResolvedGreeting {
   const hour = new Date().getHours();
   let pool: Greeting[];
 

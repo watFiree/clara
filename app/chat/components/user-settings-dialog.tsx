@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { type Language } from "@/app/generated/prisma/browser";
 import {
   type UserSettings,
   TONE_OPTIONS,
@@ -33,7 +34,10 @@ import {
 
 const QUERY_KEY = ["user-settings"];
 
-const DEFAULTS: Omit<UserSettings, "id" | "userId" | "createdAt" | "updatedAt"> = {
+const DEFAULTS: Omit<
+  UserSettings,
+  "id" | "userId" | "createdAt" | "updatedAt"
+> = {
   name: null,
   gender: null,
   ageRange: null,
@@ -185,7 +189,7 @@ export const UserSettingsDialog = ({
               <Field label="Language">
                 <Select
                   value={s.language}
-                  onValueChange={(v) => update({ language: v })}
+                  onValueChange={(v) => update({ language: v as Language })}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />

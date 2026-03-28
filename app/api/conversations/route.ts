@@ -3,10 +3,11 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { getOrCreateUser } from "@/lib/auth";
+import { isCloudMode } from "@/config";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 
 export async function GET() {
   try {
-
     const user = await getOrCreateUser();
 
     const conversations = await prisma.conversation.findMany({
@@ -27,8 +28,16 @@ export async function GET() {
 
 export async function POST() {
   try {
-
     const user = await getOrCreateUser();
+    if (user.authProvider === "local" && isCloudMode) {
+      const conversationsCount = await prisma.conversation.count({
+        where: { userId: user.id },
+      });
+
+      if (conversationsCount >= 3) {
+        return ErrorFactory("CONVERSATIONS_LIMIT_REACHED");
+      }
+    }
     const id = nanoid();
     const title = `Session from ${new Date().toLocaleDateString()}`;
     await prisma.conversation.create({
