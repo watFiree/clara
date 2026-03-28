@@ -40,6 +40,8 @@ export const Chat = () => {
 
   const [text, setText] = useState("");
   const [limitDialogOpen, setLimitDialogOpen] = useState(false);
+  const [conversationLimitReached, setConversationLimitReached] =
+    useState(false);
 
   const handleExistingConversationSubmit = (
     message: PromptInputMessage,
@@ -66,6 +68,7 @@ export const Chat = () => {
         error.code === "CONVERSATIONS_LIMIT_REACHED"
       ) {
         setLimitDialogOpen(true);
+        setConversationLimitReached(true);
       } else {
         console.error(error);
       }
@@ -97,7 +100,8 @@ export const Chat = () => {
     status === "submitted" ||
     status === "streaming" ||
     text.length === 0 ||
-    isSyncing;
+    isSyncing ||
+    conversationLimitReached;
 
   return (
     <>

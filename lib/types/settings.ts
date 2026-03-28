@@ -18,6 +18,10 @@ export type UserSettingsResponse = {
   settings: UserSettings;
 };
 
+const isLanguage = (value: unknown): value is Language =>
+  typeof value === "string" &&
+  Object.values(Language).includes(value as Language);
+
 export function isUserSettingsResponse(
   data: unknown,
 ): data is UserSettingsResponse {
@@ -56,11 +60,7 @@ export function isUpdateSettingsBody(
     return false;
   if ("memoryEnabled" in data && typeof data.memoryEnabled !== "boolean")
     return false;
-  if (
-    "language" in data &&
-    !Object.values<string>(Language).includes(String(data.language))
-  )
-    return false;
+  if ("language" in data && isLanguage(data.language)) return false;
   if (
     "ageRange" in data &&
     typeof data.ageRange !== "string" &&

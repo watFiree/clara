@@ -27,6 +27,7 @@ export const LimitReachedDialog = ({
 }: LimitReachedDialogProps) => {
   const { data: settings } = useQuery({
     queryKey: ["user-settings"],
+    enabled: open,
     queryFn: async () => {
       const res = await fetch("/api/settings");
       if (!res.ok) throw new Error("Failed to fetch settings");
