@@ -1,13 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { encryptData, decryptData } from "@/lib/crypto";
 import { getOrCreateUserKey } from "@/lib/user-keys";
-import type { MessageRole } from "@/app/generated/prisma/client";
+import type { MessageRole, Prisma } from "@/app/generated/prisma/client";
 
 interface CreateMessageData {
   id?: string;
   role: MessageRole;
   parts: unknown;
   conversationId: string;
+  metadata?: Prisma.InputJsonValue | null;
 }
 
 interface UpsertMessageData {
@@ -15,10 +16,10 @@ interface UpsertMessageData {
   role: MessageRole;
   parts: unknown;
   conversationId: string;
+  metadata?: Prisma.InputJsonValue | null;
 }
 
 export async function createMessage(userId: string, data: CreateMessageData) {
-
   const userKey = await getOrCreateUserKey(userId);
   const encryptedParts = encryptData(data.parts, userKey);
 
@@ -28,12 +29,12 @@ export async function createMessage(userId: string, data: CreateMessageData) {
       role: data.role,
       parts: encryptedParts,
       conversationId: data.conversationId,
+      ...(data.metadata && { metadata: data.metadata }),
     },
   });
 }
 
 export async function upsertMessage(userId: string, data: UpsertMessageData) {
-
   const userKey = await getOrCreateUserKey(userId);
   const encryptedParts = encryptData(data.parts, userKey);
 
@@ -44,15 +45,16 @@ export async function upsertMessage(userId: string, data: UpsertMessageData) {
       role: data.role,
       parts: encryptedParts,
       conversationId: data.conversationId,
+      ...(data.metadata && { metadata: data.metadata }),
     },
     update: {
       parts: encryptedParts,
+      ...(data.metadata && { metadata: data.metadata }),
     },
   });
 }
 
 export async function getMessages(userId: string, conversationId: string) {
-
   const userKey = await getOrCreateUserKey(userId);
 
   const messages = await prisma.message.findMany({

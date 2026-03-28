@@ -63,6 +63,9 @@ export async function POST(req: Request) {
         role: "USER",
         parts: lastMessage.parts,
         conversationId: id,
+        metadata: lastMessage.metadata
+          ? JSON.parse(JSON.stringify(lastMessage.metadata))
+          : undefined,
       });
     } else if (lastMessage.role === "assistant") {
       await upsertMessage(user.id, {

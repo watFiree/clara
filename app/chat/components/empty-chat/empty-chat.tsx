@@ -2,9 +2,15 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { motion } from "motion/react";
+import { useQuery } from "@tanstack/react-query";
 import { BrandBubble } from "@/components/brand-logo";
 import { TypingAnimation } from "@/components/ui/typing-animation";
-import { getWellbeingPrompts } from "@/lib/wellbeing-prompts";
+import { isUserSettingsResponse } from "@/lib/types/settings";
+import {
+  getWellbeingPrompts,
+  getGreeting,
+  type ResolvedWellbeingPrompt,
+} from "./prompts";
 
 const subscribe = () => () => {};
 const useIsMounted = () =>
@@ -15,18 +21,37 @@ const useIsMounted = () =>
   );
 
 interface NewChatProps {
-  onPromptSelect?: (message: string) => void;
+  onPromptSelect?: (message: string, promptId: string) => void;
 }
 
-export const NewChat = ({ onPromptSelect }: NewChatProps) => {
+export const EmptyChat = ({ onPromptSelect }: NewChatProps) => {
   const isMounted = useIsMounted();
   const [showRest, setShowRest] = useState(false);
+
+  const { data: settings } = useQuery({
+    queryKey: ["user-settings"],
+    queryFn: async () => {
+      const res = await fetch("/api/settings");
+      if (!res.ok) throw new Error("Failed to fetch settings");
+      const data: unknown = await res.json();
+      if (!isUserSettingsResponse(data))
+        throw new Error("Invalid settings response");
+      return data.settings;
+    },
+  });
+
+  const lang = settings?.language ?? "en";
+
   const prompts = useMemo(
-    () => (isMounted ? getWellbeingPrompts() : []),
-    [isMounted],
+    () => (isMounted ? getWellbeingPrompts(lang) : []),
+    [isMounted, lang],
   );
 
-  // Show the rest after typing finishes: delay (600ms) + ~15 chars * 80ms ≈ 1800ms
+  const greeting = useMemo(
+    () => (isMounted ? getGreeting(lang) : { title: "", subtitle: "" }),
+    [isMounted, lang],
+  );
+
   useEffect(() => {
     const timer = setTimeout(() => setShowRest(true), 3000);
     return () => clearTimeout(timer);
@@ -63,7 +88,7 @@ export const NewChat = ({ onPromptSelect }: NewChatProps) => {
       <div className="flex flex-col items-center gap-2 text-center">
         <h2 className="relative text-2xl font-bold tracking-tight">
           <span className="invisible" aria-hidden="true">
-            Hey, I&apos;m Clara
+            {greeting.title}
           </span>
           <span className="absolute inset-0">
             <TypingAnimation
@@ -74,7 +99,7 @@ export const NewChat = ({ onPromptSelect }: NewChatProps) => {
               showCursor={false}
               as="span"
             >
-              Hey, I&apos;m Clara
+              {greeting.title}
             </TypingAnimation>
           </span>
         </h2>
@@ -84,49 +109,61 @@ export const NewChat = ({ onPromptSelect }: NewChatProps) => {
           animate={showRest ? { opacity: 1 } : {}}
           transition={{ duration: 0.5 }}
         >
-          Your personal wellbeing assistant. I&apos;m here whenever you&apos;d
-          like to check in, reflect, or just talk.
+          {greeting.subtitle}
         </motion.p>
       </div>
 
       {prompts.length > 0 && (
-        <motion.div
-          className="mt-2 grid w-full max-w-md grid-cols-3 gap-3"
-          initial={{ opacity: 0 }}
-          animate={showRest ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          {prompts.map((prompt) => (
+        <div className="mt-2 flex w-full max-w-md flex-col gap-3">
+          {prompts.map((prompt, index) => (
             <SuggestionCard
-              key={prompt.message}
-              icon={<prompt.icon className="size-4" />}
-              label={prompt.label}
-              onClick={() => onPromptSelect?.(prompt.message)}
+              key={prompt.id}
+              prompt={prompt}
+              index={index}
+              show={showRest}
+              onClick={() => onPromptSelect?.(prompt.message, prompt.id)}
             />
           ))}
-        </motion.div>
+        </div>
       )}
     </div>
   );
 };
 
 const SuggestionCard = ({
-  icon,
-  label,
+  prompt,
+  index,
+  show,
   onClick,
 }: {
-  icon: React.ReactNode;
-  label: string;
+  prompt: ResolvedWellbeingPrompt;
+  index: number;
+  show: boolean;
   onClick?: () => void;
 }) => (
-  <button
+  <motion.button
     type="button"
     onClick={onClick}
-    className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-border/60 bg-muted/50 px-3 py-4 text-center text-xs text-muted-foreground transition-colors hover:border-primary/30 hover:bg-primary/5"
+    initial={{ opacity: 0, y: 8 }}
+    animate={show ? { opacity: 1, y: 0 } : {}}
+    transition={{
+      duration: 0.25,
+      delay: 0.2 + index * 0.08,
+    }}
+    whileHover={{ scale: 1.01, transition: { duration: 0.15 } }}
+    whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
+    className="flex cursor-pointer flex-col gap-1.5 rounded-2xl border border-border/60 bg-muted/40 px-4 py-3.5 text-left transition-colors hover:border-primary/30 hover:bg-primary/5"
   >
-    <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-      {icon}
+    <div className="flex items-center gap-2.5">
+      <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <prompt.icon className="size-3.5" />
+      </div>
+      <span className="text-sm font-semibold text-foreground">
+        {prompt.label}
+      </span>
     </div>
-    {label}
-  </button>
+    <p className="text-xs leading-relaxed text-muted-foreground">
+      {prompt.description}
+    </p>
+  </motion.button>
 );
