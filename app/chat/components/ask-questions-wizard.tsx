@@ -11,7 +11,7 @@ import type {
   AskQuestionsInput,
   AskQuestionsOutput,
 } from "@/lib/tools/ask-questions/consts";
-import { Tool, UIToolInvocation } from "ai";
+import type { Tool, UIToolInvocation } from "ai";
 import { AskQuestionsWizardSkeleton } from "./ask-questions-wizard-skeleton";
 
 type AskQuestionsWizardProps = {
