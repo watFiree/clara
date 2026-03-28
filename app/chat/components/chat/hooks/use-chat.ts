@@ -2,23 +2,43 @@ import { useChatStore } from "@/lib/store/chat-store";
 import { useChat as useChatBase } from "@ai-sdk/react";
 import { useShallow } from "zustand/react/shallow";
 import { useMessagesSync } from "./use-messages-sync";
-import { lastAssistantMessageIsCompleteWithToolCalls } from "ai";
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithToolCalls,
+} from "ai";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   isSaveMemoryToolPart,
   isUpdateMemoryToolPart,
 } from "@/lib/tools/helpers";
+import { useTurnstile } from "@/components/turnstile-gate";
 
 export const useChat = () => {
   const activeConversationId = useChatStore(
     useShallow((s) => s.activeConversationId),
   );
   const queryClient = useQueryClient();
+  const { getToken } = useTurnstile();
+  const token = getToken();
 
   const { messages, sendMessage, status, setMessages, addToolOutput } =
     useChatBase({
       id: activeConversationId ?? "",
       sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+      transport: new DefaultChatTransport({
+        api: "/api/chat",
+        headers: {
+          ...(token ? { "x-turnstile-token": token } : {}),
+        },
+      }),
+      onError: async (error) => {
+        if (error instanceof Error) {
+          if (error.message.includes("USER_NOT_FOUND")) {
+            window.location.href = "/setup";
+            return;
+          }
+        }
+      },
       onFinish: ({ message }) => {
         const hasMemoryMutation = message.parts.some(
           (part) => isSaveMemoryToolPart(part) || isUpdateMemoryToolPart(part),

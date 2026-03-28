@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { getStripeServer } from "@/lib/stripe";
 
 export async function POST() {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
 
     if (!user.stripeCustomerId) {
       return NextResponse.json(

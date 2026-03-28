@@ -6,18 +6,21 @@ import { Hero } from "@/modules/hero/hero";
 import { ValuesSection } from "@/modules/values-section/values-section";
 import { HowItWorksSection } from "@/modules/how-it-works-section/how-it-works-section";
 import { PrivacySection } from "@/modules/privacy-section/privacy-section";
+import { Providers } from "./providers";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background font-sans">
-      <Navbar />
-      <Hero />
-      <HowItWorksSection />
-      <FeaturesSection />
-      <ValuesSection />
-      <PrivacySection />
-      <CtaSection />
-      <Footer />
-    </main>
+    <Providers>
+      <main className="min-h-screen bg-background font-sans">
+        <Navbar />
+        <Hero />
+        <HowItWorksSection />
+        <FeaturesSection />
+        <ValuesSection />
+        <PrivacySection />
+        <CtaSection />
+        <Footer />
+      </main>
+    </Providers>
   );
 }

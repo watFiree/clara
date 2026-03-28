@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { COOKIE_NAME } from "@/config";
 
-export function assignAnonCookie(response: NextResponse) {
-  response.cookies.set(COOKIE_NAME, crypto.randomUUID(), {
+export function assignAnonCookie(response: NextResponse, value?: string) {
+  response.cookies.set(COOKIE_NAME, value ?? crypto.randomUUID(), {
     httpOnly: true,
     sameSite: "lax",
     path: "/",

@@ -1,9 +1,8 @@
 import { convertToModelMessages, streamText, stepCountIs } from "ai";
-import type { UIMessage } from "ai";
-
 import { prisma } from "@/lib/prisma";
 import { buildSystemPrompt } from "@/lib/prompts";
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { isCloudMode } from "@/config";
 import { checkUsageLimit } from "@/lib/stripe/usage";
 import { getStartOfDayUTC } from "@/lib/utils/date";
@@ -11,12 +10,43 @@ import { createMessage, upsertMessage } from "@/lib/services/message-service";
 import { createToolsSet } from "@/lib/tools/tools-set";
 import { getModelForUser, getModel } from "@/lib/features/model/helpers";
 import { isChatRequestBody } from "@/lib/types/api";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
+
+    if (isCloudMode) {
+      const rl = await checkRateLimit(user.id);
+      if (!rl.success) {
+        return Response.json(
+          { error: "rate_limited" },
+          {
+            status: 429,
+            headers: {
+              "Retry-After": String(Math.ceil((rl.reset - Date.now()) / 1000)),
+              "X-RateLimit-Limit": String(rl.limit),
+              "X-RateLimit-Remaining": String(rl.remaining),
+            },
+          },
+        );
+      }
+
+      if (process.env.TURNSTILE_SECRET_KEY) {
+        const turnstileToken = req.headers.get("x-turnstile-token");
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+        if (!turnstileToken || !(await verifyTurnstileToken(turnstileToken, ip))) {
+          return Response.json(
+            { error: "turnstile_required" },
+            { status: 403 },
+          );
+        }
+      }
+    }
 
     const body = await req.json();
 

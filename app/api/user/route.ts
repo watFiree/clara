@@ -2,12 +2,14 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { COOKIE_NAME } from "@/config";
 
 export async function GET() {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
 
     return NextResponse.json({
       user: { id: user.id, authProvider: user.authProvider },
@@ -23,7 +25,8 @@ export async function GET() {
 
 export async function DELETE() {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
 
     await prisma.user.delete({ where: { id: user.id } });
 

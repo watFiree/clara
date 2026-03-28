@@ -2,13 +2,14 @@ import { nanoid } from "nanoid";
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 import { isCloudMode } from "@/config";
 import { ErrorFactory } from "@/lib/errors/errorFactory";
 
 export async function GET() {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
 
     const conversations = await prisma.conversation.findMany({
       where: { userId: user.id },
@@ -28,7 +29,8 @@ export async function GET() {
 
 export async function POST() {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     if (user.authProvider === "local" && isCloudMode) {
       const conversationsCount = await prisma.conversation.count({
         where: { userId: user.id },

@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { isRenameConversationBody } from "@/lib/types/api";
 
 export async function GET(
@@ -10,7 +11,8 @@ export async function GET(
 ) {
   try {
 
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     const { id } = await params;
 
     const conversation = await prisma.conversation.findFirst({
@@ -40,7 +42,8 @@ export async function PATCH(
 ) {
   try {
 
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     const { id } = await params;
     const body = await req.json();
 
@@ -81,7 +84,8 @@ export async function DELETE(
 ) {
   try {
 
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     const { id } = await params;
 
     const conversation = await prisma.conversation.findFirst({
