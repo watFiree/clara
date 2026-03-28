@@ -20,7 +20,6 @@ interface UpsertMessageData {
 }
 
 export async function createMessage(userId: string, data: CreateMessageData) {
-
   const userKey = await getOrCreateUserKey(userId);
   const encryptedParts = encryptData(data.parts, userKey);
 
@@ -36,7 +35,6 @@ export async function createMessage(userId: string, data: CreateMessageData) {
 }
 
 export async function upsertMessage(userId: string, data: UpsertMessageData) {
-
   const userKey = await getOrCreateUserKey(userId);
   const encryptedParts = encryptData(data.parts, userKey);
 
@@ -47,15 +45,16 @@ export async function upsertMessage(userId: string, data: UpsertMessageData) {
       role: data.role,
       parts: encryptedParts,
       conversationId: data.conversationId,
+      ...(data.metadata && { metadata: data.metadata }),
     },
     update: {
       parts: encryptedParts,
+      ...(data.metadata && { metadata: data.metadata }),
     },
   });
 }
 
 export async function getMessages(userId: string, conversationId: string) {
-
   const userKey = await getOrCreateUserKey(userId);
 
   const messages = await prisma.message.findMany({
