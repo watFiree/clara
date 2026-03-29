@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { queryFactory } from "@/lib/queryFactory";
-import { PLAN_ID, type Plan } from "@/lib/stripe/plans";
+import { PLAN_ID, PlanSchema, type Plan } from "@/lib/stripe/plans";
 import {
   isSubscriptionResponse,
   type SubscriptionResponse,
@@ -36,11 +36,7 @@ export const BillingDialog = ({ open, onOpenChange }: BillingDialogProps) => {
   const { data: plans } = useQuery<Plan[]>({
     queryKey: ["plans"],
     queryFn: () =>
-      queryFactory(
-        "/api/plans",
-        {},
-        (d): d is Plan[] => Array.isArray(d),
-      ),
+      queryFactory("/api/plans", {}, PlanSchema.array()),
     enabled: open,
   });
 

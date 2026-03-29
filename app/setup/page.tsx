@@ -2,18 +2,20 @@
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useTurnstile } from "@/components/turnstile-gate";
 import { useSetup } from "@/lib/hooks/use-setup";
 import { useEffect, useRef } from "react";
 
 export default function SetupPage() {
   const { setup, isSettingUp, isError, error } = useSetup();
+  const { isReady } = useTurnstile();
   const triggered = useRef(false);
 
   useEffect(() => {
-    if (triggered.current) return;
+    if (!isReady || triggered.current) return;
     triggered.current = true;
     setup();
-  }, [setup]);
+  }, [isReady, setup]);
 
   function handleRetry() {
     if (isSettingUp) return;

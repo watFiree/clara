@@ -19,10 +19,11 @@ export async function queryFactory<T>(
   const res = await fetch(endpoint, options);
   const body: unknown = await res.json().catch(() => null);
   if (!res.ok) {
-    const error =
+    const parsed =
       body && typeof body === "object" && "error" in body
-        ? ErrorCodeSchema.parse(body.error)
-        : "UNKNOWN";
+        ? ErrorCodeSchema.safeParse(body.error)
+        : null;
+    const error = parsed?.success ? parsed.data : "UNKNOWN";
     throw new ApiError(error, res.status);
   }
   return validate(bodyValidator, body);
