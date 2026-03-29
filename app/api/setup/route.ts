@@ -74,6 +74,9 @@ export async function POST(req: Request) {
       });
 
       if (existingUser) {
+        if (existingUser.authProvider !== "local") {
+          return NextResponse.json({ error: "Use login" }, { status: 403 });
+        }
         const response = NextResponse.json({
           status: "reclaimed",
           userId: existingUser.id,
