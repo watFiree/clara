@@ -1,5 +1,6 @@
 import { useChatStore } from "@/lib/store/chat-store";
 import { isConversationMessagesResponse } from "@/lib/types/api";
+import { queryFactory } from "@/lib/queryFactory";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { UIMessage } from "ai";
 import { useShallow } from "zustand/react/shallow";
@@ -22,14 +23,16 @@ export const useMessagesSync = ({
   const { data: initialMessages = [], isLoading } = useQuery<UIMessage[]>({
     queryKey: ["conversation", activeConversationId, "messages"],
     queryFn: async () => {
-      const res = await fetch(
-        `/api/conversations/${activeConversationId}/messages`,
-      );
-      if (!res.ok) return [];
-      const data: unknown = await res.json();
-      if (!isConversationMessagesResponse(data)) return [];
-      const messages = transformDbMessages(data.messages);
-      return messages;
+      try {
+        const data = await queryFactory(
+          `/api/conversations/${activeConversationId}/messages`,
+          {},
+          isConversationMessagesResponse,
+        );
+        return transformDbMessages(data.messages);
+      } catch {
+        return [];
+      }
     },
     enabled: Boolean(activeConversationId) && !newChatPendingMessage,
   });

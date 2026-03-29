@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { queryFactory } from "@/lib/queryFactory";
 import { isUserSettingsResponse } from "@/lib/types/settings";
 import { UserSettingsDialog } from "../user-settings-dialog";
 import { BillingDialog } from "../billing-dialog";
@@ -38,26 +39,21 @@ export const SidebarUserButton = () => {
 
   const { data: settings } = useQuery({
     queryKey: ["user-settings"],
-    queryFn: async () => {
-      const res = await fetch("/api/settings");
-      if (!res.ok) throw new Error("Failed to fetch settings");
-      const data: unknown = await res.json();
-      if (!isUserSettingsResponse(data))
-        throw new Error("Invalid settings response");
-      return data.settings;
-    },
+    queryFn: () =>
+      queryFactory("/api/settings", {}, isUserSettingsResponse).then(
+        (d) => d.settings,
+      ),
   });
 
   const { data: user } = useQuery({
     queryKey: ["user"],
-    queryFn: async () => {
-      const res = await fetch("/api/user");
-      if (!res.ok) throw new Error("Failed to fetch user");
-      const data = (await res.json()) as {
-        user: { id: string; authProvider: string };
-      };
-      return data.user;
-    },
+    queryFn: () =>
+      queryFactory(
+        "/api/user",
+        {},
+        (d): d is { user: { id: string; authProvider: string } } =>
+          d != null && typeof d === "object" && "user" in d,
+      ).then((d) => d.user),
   });
 
   const [deleteOpen, setDeleteOpen] = useState(false);

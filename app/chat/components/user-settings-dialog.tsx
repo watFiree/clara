@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ApiError } from "@/lib/errors";
+import { queryFactory } from "@/lib/queryFactory";
 import { type Language } from "@/app/generated/prisma/browser";
 import {
   type UserSettings,
@@ -60,14 +62,10 @@ export const UserSettingsDialog = ({
 
   const { data: settings } = useQuery({
     queryKey: QUERY_KEY,
-    queryFn: async () => {
-      const res = await fetch("/api/settings");
-      if (!res.ok) throw new Error("Failed to fetch settings");
-      const data: unknown = await res.json();
-      if (!isUserSettingsResponse(data))
-        throw new Error("Invalid settings response");
-      return data.settings;
-    },
+    queryFn: () =>
+      queryFactory("/api/settings", {}, isUserSettingsResponse).then(
+        (d) => d.settings,
+      ),
   });
 
   const { mutate: update } = useMutation({
@@ -77,7 +75,11 @@ export const UserSettingsDialog = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(partial),
       });
-      if (!res.ok) throw new Error("Failed to save settings");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        if (body?.error) throw new ApiError(body.error);
+        throw new Error("Failed to save settings");
+      }
       const data: unknown = await res.json();
       if (!isUserSettingsResponse(data)) throw new Error("Invalid response");
       return data.settings;

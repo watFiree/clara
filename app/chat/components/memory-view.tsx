@@ -16,6 +16,8 @@ import {
   isMemoriesListResponse,
   type MemoryResponse,
 } from "@/lib/types/memory";
+import { ApiError } from "@/lib/errors";
+import { queryFactory } from "@/lib/queryFactory";
 import { useViewsStore } from "@/lib/store/views-store";
 import { useShallow } from "zustand/react/shallow";
 
@@ -84,14 +86,13 @@ export const MemoryView = () => {
   const { data: memories, isLoading } = useQuery({
     queryKey: ["memories"],
     queryFn: async () => {
-      const res = await fetch("/api/memories");
-      if (!res.ok) {
-        if (res.status === 403) return [];
-        throw new Error("Failed to fetch memories");
+      try {
+        const data = await queryFactory("/api/memories", {}, isMemoriesListResponse);
+        return data.memories;
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 403) return [];
+        throw e;
       }
-      const data: unknown = await res.json();
-      if (!isMemoriesListResponse(data)) throw new Error("Invalid response");
-      return data.memories;
     },
     refetchOnMount: true,
   });
@@ -99,7 +100,11 @@ export const MemoryView = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await fetch(`/api/memories/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        if (body?.error) throw new ApiError(body.error);
+        throw new Error("Failed to delete");
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["memories"] }),
   });
@@ -111,7 +116,11 @@ export const MemoryView = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
-      if (!res.ok) throw new Error("Failed to update");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        if (body?.error) throw new ApiError(body.error);
+        throw new Error("Failed to update");
+      }
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["memories"] }),
   });

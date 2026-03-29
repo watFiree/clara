@@ -12,7 +12,6 @@ import { useNewConversation } from "./hooks/use-new-conversation";
 import { LimitReachedDialog } from "./limit-reached-dialog";
 import { isCloudMode } from "@/config";
 import { ApiError } from "@/lib/errors";
-
 export const Chat = () => {
   const activeConversationId = useChatStore(
     useShallow((s) => s.activeConversationId),

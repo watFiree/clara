@@ -10,8 +10,11 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { animationConfig } from "./consts";
 import { isCloudMode } from "@/config";
+import { useSetup } from "@/lib/hooks/use-setup";
+import { Spinner } from "@/components/ui/spinner";
 
 export function Hero() {
+  const { setup, isSettingUp } = useSetup();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -170,12 +173,18 @@ export function Hero() {
           style={{ pointerEvents: animationPhase === "done" ? "auto" : "none" }}
         >
           <Button
-            asChild
-            className="h-12 rounded-full px-8 text-sm font-semibold shadow-md transition-transform hover:scale-105 active:scale-95"
+            onClick={() => setup()}
+            disabled={isSettingUp}
+            className="relative h-12 rounded-full px-8 text-sm font-semibold shadow-md transition-transform hover:scale-105 active:scale-95"
           >
-            <Link href="/chat">
+            <span className={isSettingUp ? "opacity-0" : undefined}>
               {isCloudMode ? "Try for free" : "Open app"}
-            </Link>
+            </span>
+            {isSettingUp && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <Spinner className="size-5" />
+              </span>
+            )}
           </Button>
           <Button
             asChild

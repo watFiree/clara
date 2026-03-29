@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { checkMemoryAccess } from "@/lib/features/memories/checkAccess";
 import {
   deleteMemory,
@@ -13,7 +14,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     const { id } = await params;
 
     const access = await checkMemoryAccess(user.id);
@@ -40,7 +42,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     const { id } = await params;
 
     const access = await checkMemoryAccess(user.id);

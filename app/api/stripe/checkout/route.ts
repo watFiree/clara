@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { prisma } from "@/lib/prisma";
 import { getStripeServer } from "@/lib/stripe";
 
@@ -15,7 +16,8 @@ function isCheckoutBody(data: unknown): data is { priceId: string } {
 
 export async function POST(req: Request) {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     const body = await req.json();
 
     if (!isCheckoutBody(body)) {

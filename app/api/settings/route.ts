@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { isUpdateSettingsBody } from "@/lib/types/settings";
 
 export async function GET() {
   try {
 
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
 
     const settings = await prisma.userSettings.upsert({
       where: { userId: user.id },
@@ -28,7 +30,8 @@ export async function GET() {
 export async function PUT(req: Request) {
   try {
 
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     const body = await req.json();
 
     if (!isUpdateSettingsBody(body)) {

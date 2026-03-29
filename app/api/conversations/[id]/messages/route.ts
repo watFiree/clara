@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { getMessages } from "@/lib/services/message-service";
 import { prisma } from "@/lib/prisma";
 
@@ -9,7 +10,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     const { id } = await params;
 
     const conversation = await prisma.conversation.findFirst({

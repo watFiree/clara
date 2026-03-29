@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 
-import { getOrCreateUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
+import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { checkUsageLimit } from "@/lib/stripe/usage";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const user = await getOrCreateUser();
+    const user = await getUser();
+    if (!user) return ErrorFactory("USER_NOT_FOUND");
     const usage = await checkUsageLimit(user.id);
 
     return NextResponse.json({

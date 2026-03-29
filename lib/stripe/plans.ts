@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { PlanId } from "@/app/generated/prisma/client";
 
 // Re-export as const for client-side usage (Prisma enum can't be imported in client components)
@@ -19,3 +20,16 @@ export interface Plan {
   features: string[];
   highlighted: boolean;
 }
+
+const planIds = Object.values(PlanId);
+
+export const PlanSchema: z.ZodType<Plan> = z.object({
+  id: z.enum(planIds),
+  name: z.string(),
+  description: z.string(),
+  price: z.number(),
+  tokenLimit: z.number(),
+  stripePriceId: z.string().nullable(),
+  features: z.array(z.string()),
+  highlighted: z.boolean(),
+});
