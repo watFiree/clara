@@ -175,14 +175,15 @@ export function Hero() {
           <Button
             onClick={() => setup()}
             disabled={isSettingUp}
-            className="h-12 rounded-full px-8 text-sm font-semibold shadow-md transition-transform hover:scale-105 active:scale-95"
+            className="relative h-12 rounded-full px-8 text-sm font-semibold shadow-md transition-transform hover:scale-105 active:scale-95"
           >
-            {isSettingUp ? (
-              <Spinner className="size-5" />
-            ) : isCloudMode ? (
-              "Try for free"
-            ) : (
-              "Open app"
+            <span className={isSettingUp ? "opacity-0" : undefined}>
+              {isCloudMode ? "Try for free" : "Open app"}
+            </span>
+            {isSettingUp && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <Spinner className="size-5" />
+              </span>
             )}
           </Button>
           <Button

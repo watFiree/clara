@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { queryFactory } from "@/lib/queryFactory";
 import { isUserSettingsResponse } from "@/lib/types/settings";
 import { ErrorTranslations } from "@/lib/errors/translations";
 import { Language } from "@/app/generated/prisma/browser";
@@ -28,14 +29,10 @@ export const LimitReachedDialog = ({
   const { data: settings } = useQuery({
     queryKey: ["user-settings"],
     enabled: open,
-    queryFn: async () => {
-      const res = await fetch("/api/settings");
-      if (!res.ok) throw new Error("Failed to fetch settings");
-      const data: unknown = await res.json();
-      if (!isUserSettingsResponse(data))
-        throw new Error("Invalid settings response");
-      return data.settings;
-    },
+    queryFn: () =>
+      queryFactory("/api/settings", {}, isUserSettingsResponse).then(
+        (d) => d.settings,
+      ),
   });
 
   const lang: Language = settings?.language ?? "en";

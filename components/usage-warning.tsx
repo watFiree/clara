@@ -5,6 +5,7 @@ import { AlertTriangleIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BillingDialog } from "@/app/chat/components/billing-dialog";
+import { queryFactory } from "@/lib/queryFactory";
 import {
   isSubscriptionResponse,
   type SubscriptionResponse,
@@ -16,14 +17,7 @@ export const UsageWarning = () => {
 
   const { data: subscription } = useQuery<SubscriptionResponse>({
     queryKey: ["subscription"],
-    queryFn: async () => {
-      const res = await fetch("/api/subscription");
-      if (!res.ok) throw new Error("Failed to fetch");
-      const data: unknown = await res.json();
-      if (!isSubscriptionResponse(data))
-        throw new Error("Invalid subscription response");
-      return data;
-    },
+    queryFn: () => queryFactory("/api/subscription", {}, isSubscriptionResponse),
     refetchInterval: 60_000,
   });
 

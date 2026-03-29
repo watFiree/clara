@@ -5,7 +5,11 @@ import { useState } from "react";
 import { TurnstileGate } from "@/components/turnstile-gate";
 
 function handleUserNotFound(error: unknown) {
-  if (error instanceof Error && error.message.includes("USER_NOT_FOUND")) {
+  if (
+    error instanceof Error &&
+    error.message.includes("USER_NOT_FOUND") &&
+    window.location.pathname !== "/setup"
+  ) {
     window.location.href = "/setup";
   }
 }

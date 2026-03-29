@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { ApiError } from "@/lib/errors";
 import { useChatStore } from "@/lib/store/chat-store";
 import { useViewsStore } from "@/lib/store/views-store";
 
@@ -50,7 +51,11 @@ export const SidebarConversationButton = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newTitle }),
       });
-      if (!res.ok) throw new Error("Failed to rename");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        if (body?.error) throw new ApiError(body.error);
+        throw new Error("Failed to rename");
+      }
     },
     onSuccess: () => {
       setOpenDialog(null);
@@ -61,7 +66,11 @@ export const SidebarConversationButton = ({
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const res = await fetch(`/api/conversations/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        if (body?.error) throw new ApiError(body.error);
+        throw new Error("Failed to delete");
+      }
     },
     onSuccess: () => {
       setOpenDialog(null);

@@ -5,6 +5,7 @@ import { motion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
 import { BrandBubble } from "@/components/brand-logo";
 import { TypingAnimation } from "@/components/ui/typing-animation";
+import { queryFactory } from "@/lib/queryFactory";
 import { isUserSettingsResponse } from "@/lib/types/settings";
 import {
   getWellbeingPrompts,
@@ -30,14 +31,10 @@ export const EmptyChat = ({ onPromptSelect }: NewChatProps) => {
 
   const { data: settings } = useQuery({
     queryKey: ["user-settings"],
-    queryFn: async () => {
-      const res = await fetch("/api/settings");
-      if (!res.ok) throw new Error("Failed to fetch settings");
-      const data: unknown = await res.json();
-      if (!isUserSettingsResponse(data))
-        throw new Error("Invalid settings response");
-      return data.settings;
-    },
+    queryFn: () =>
+      queryFactory("/api/settings", {}, isUserSettingsResponse).then(
+        (d) => d.settings,
+      ),
   });
 
   const lang = settings?.language ?? "en";

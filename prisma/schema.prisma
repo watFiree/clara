@@ -18,7 +18,7 @@ model User {
   authProvider     String    @default("local")
   providerId       String?   @unique
   stripeCustomerId String?   @unique
-  fingerprint         String?
+  fingerprint         String? @unique
   encryptedKey        String?
   keyIv               String?
   encryptedSignVector String?

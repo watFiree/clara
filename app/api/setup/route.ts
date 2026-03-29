@@ -1,10 +1,12 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { COOKIE_NAME } from "@/config";
+import { COOKIE_NAME, isCloudMode } from "@/config";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/app/generated/prisma/client";
 import { assignAnonCookie } from "@/lib/middleware";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export async function POST(req: Request) {
   try {
@@ -23,6 +25,38 @@ export async function POST(req: Request) {
     }
 
     if (!cookieId) {
+      if (isCloudMode) {
+        const rateLimitKey = `fp:${fingerprint}`;
+        const rl = await checkRateLimit(rateLimitKey);
+        if (!rl.success) {
+          return NextResponse.json(
+            { error: "rate_limited" },
+            {
+              status: 429,
+              headers: {
+                "Retry-After": String(
+                  Math.ceil((rl.reset - Date.now()) / 1000),
+                ),
+              },
+            },
+          );
+        }
+
+        if (process.env.TURNSTILE_SECRET_KEY) {
+          const turnstileToken = req.headers.get("x-turnstile-token");
+          const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+          if (
+            !turnstileToken ||
+            !(await verifyTurnstileToken(turnstileToken, ip))
+          ) {
+            return NextResponse.json(
+              { error: "turnstile_required" },
+              { status: 403 },
+            );
+          }
+        }
+      }
+
       const newId = crypto.randomUUID();
       await prisma.user.create({ data: { id: newId, fingerprint } });
       const response = NextResponse.json({ status: "created", userId: newId });

@@ -5,6 +5,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { PromptInputActionMenuItem } from "@/components/ai-elements/prompt-input";
 import { Switch } from "@/components/ui/switch";
 import { useChatStore } from "@/lib/store/chat-store";
+import { ApiError } from "@/lib/errors";
+import { queryFactory } from "@/lib/queryFactory";
 import { isConversationSettingsResponse } from "@/lib/types/api";
 
 export const MemoryToggle = () => {
@@ -17,16 +19,12 @@ export const MemoryToggle = () => {
 
   const { data: settings } = useQuery({
     queryKey: ["conversation-settings", activeConversationId],
-    queryFn: async () => {
-      const res = await fetch(
+    queryFn: () =>
+      queryFactory(
         `/api/conversations/${activeConversationId}/settings`,
-      );
-      if (!res.ok) throw new Error("Failed to fetch settings");
-      const data: unknown = await res.json();
-      if (!isConversationSettingsResponse(data))
-        throw new Error("Invalid settings response");
-      return data.settings;
-    },
+        {},
+        isConversationSettingsResponse,
+      ).then((d) => d.settings),
     enabled: !!activeConversationId,
   });
 
@@ -46,7 +44,11 @@ export const MemoryToggle = () => {
           body: JSON.stringify({ memoryDisabled: !memoryDisabled }),
         },
       );
-      if (!res.ok) throw new Error("Failed to update conversation settings");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        if (body?.error) throw new ApiError(body.error);
+        throw new Error("Failed to update conversation settings");
+      }
     },
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey });

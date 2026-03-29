@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
+import { queryFactory } from "@/lib/queryFactory";
 import { PLAN_ID, type Plan } from "@/lib/stripe/plans";
 import {
   isSubscriptionResponse,
@@ -28,24 +29,18 @@ interface BillingDialogProps {
 export const BillingDialog = ({ open, onOpenChange }: BillingDialogProps) => {
   const { data: subscription, isLoading } = useQuery<SubscriptionResponse>({
     queryKey: ["subscription"],
-    queryFn: async () => {
-      const res = await fetch("/api/subscription");
-      if (!res.ok) throw new Error("Failed to fetch subscription");
-      const data: unknown = await res.json();
-      if (!isSubscriptionResponse(data))
-        throw new Error("Invalid subscription response");
-      return data;
-    },
+    queryFn: () => queryFactory("/api/subscription", {}, isSubscriptionResponse),
     enabled: open,
   });
 
   const { data: plans } = useQuery<Plan[]>({
     queryKey: ["plans"],
-    queryFn: async () => {
-      const res = await fetch("/api/plans");
-      if (!res.ok) throw new Error("Failed to fetch plans");
-      return res.json();
-    },
+    queryFn: () =>
+      queryFactory(
+        "/api/plans",
+        {},
+        (d): d is Plan[] => Array.isArray(d),
+      ),
     enabled: open,
   });
 

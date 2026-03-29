@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MenuIcon, PlusIcon } from "lucide-react";
+import { MenuIcon } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,13 +10,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { useChatStore } from "@/lib/store/chat-store";
 import { SidebarFeatureNav } from "../sidebar/sidebar-feature-nav";
 import { SidebarUserButton } from "../sidebar/sidebar-user-button";
 import { SidebarConversationsList } from "../sidebar/sidebar-conversations-list";
 import { SettingsButton } from "./settings-dialog";
 import { NewSession } from "./new-session";
 import { useQuery } from "@tanstack/react-query";
+import { queryFactory } from "@/lib/queryFactory";
 import { isCloudMode } from "@/config";
 import { SignUp } from "./signup";
 
@@ -25,14 +25,13 @@ export const MobileHeader = () => {
 
   const { data: user } = useQuery({
     queryKey: ["user"],
-    queryFn: async () => {
-      const res = await fetch("/api/user");
-      if (!res.ok) throw new Error("Failed to fetch user");
-      const data = (await res.json()) as {
-        user: { id: string; authProvider: string };
-      };
-      return data.user;
-    },
+    queryFn: () =>
+      queryFactory(
+        "/api/user",
+        {},
+        (d): d is { user: { id: string; authProvider: string } } =>
+          d != null && typeof d === "object" && "user" in d,
+      ).then((d) => d.user),
   });
 
   const isLocalUser = !user || user.authProvider === "local";

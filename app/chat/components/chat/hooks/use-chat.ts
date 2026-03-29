@@ -19,7 +19,6 @@ export const useChat = () => {
   );
   const queryClient = useQueryClient();
   const { getToken } = useTurnstile();
-  const token = getToken();
 
   const { messages, sendMessage, status, setMessages, addToolOutput } =
     useChatBase({
@@ -28,7 +27,7 @@ export const useChat = () => {
       transport: new DefaultChatTransport({
         api: "/api/chat",
         headers: {
-          ...(token ? { "x-turnstile-token": token } : {}),
+          ...(getToken() ? { "x-turnstile-token": getToken() as string } : {}),
         },
       }),
       onError: async (error) => {

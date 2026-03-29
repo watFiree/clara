@@ -2,6 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useTurnstile } from "@/components/turnstile-gate";
 
 async function getFingerprint(): Promise<string | null> {
   try {
@@ -16,27 +17,44 @@ async function getFingerprint(): Promise<string | null> {
 
 export function useSetup() {
   const router = useRouter();
+  const { getToken } = useTurnstile();
 
-  const { mutate: setup, isPending: isSettingUp } = useMutation({
+  const {
+    mutate: setup,
+    isPending: isSettingUp,
+    error,
+    isError,
+  } = useMutation({
     mutationFn: async () => {
       const fingerprint = await getFingerprint();
 
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      const turnstileToken = getToken();
+      if (turnstileToken) {
+        headers["x-turnstile-token"] = turnstileToken;
+      }
+
       const res = await fetch("/api/setup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ fingerprint }),
       });
 
       const data = await res.json();
 
-      if (!res.ok && data.error === "Use login") {
-        router.push("/auth/login");
-        return;
+      if (!res.ok) {
+        if (data.error === "Use login") {
+          router.push("/auth/login");
+          return;
+        }
+        throw new Error(data.error || "Setup failed");
       }
 
       router.push("/chat");
     },
   });
 
-  return { setup, isSettingUp };
+  return { setup, isSettingUp, error, isError };
 }

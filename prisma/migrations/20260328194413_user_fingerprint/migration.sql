@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "User" ADD COLUMN     "fingerprint" TEXT;
+ALTER TABLE "User" ADD COLUMN     "fingerprint" TEXT UNIQUE;

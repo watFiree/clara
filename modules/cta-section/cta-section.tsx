@@ -34,9 +34,16 @@ export function CtaSection() {
           <Button
             onClick={() => setup()}
             disabled={isSettingUp}
-            className="h-14 rounded-full px-10 text-base font-semibold shadow-lg transition-transform hover:scale-105 active:scale-95"
+            className="relative h-14 rounded-full px-10 text-base font-semibold shadow-lg transition-transform hover:scale-105 active:scale-95"
           >
-            {isSettingUp ? <Spinner className="size-5" /> : "Start a session"}
+            <span className={isSettingUp ? "opacity-0" : undefined}>
+              Start a session
+            </span>
+            {isSettingUp && (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <Spinner className="size-5" />
+              </span>
+            )}
           </Button>
         </div>
       </div>

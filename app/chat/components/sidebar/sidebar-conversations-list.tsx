@@ -5,6 +5,7 @@ import {
   isConversationsListResponse,
 } from "@/lib/types/api";
 import { useQuery } from "@tanstack/react-query";
+import { queryFactory } from "@/lib/queryFactory";
 import { SidebarConversationButton } from "./sidebar-conversation-button";
 
 interface SidebarConversationsListProps {
@@ -16,14 +17,10 @@ export const SidebarConversationsList = ({
 }: SidebarConversationsListProps) => {
   const { data: conversations, isLoading } = useQuery<ConversationSummary[]>({
     queryKey: ["conversations"],
-    queryFn: async () => {
-      const res = await fetch("/api/conversations");
-      if (!res.ok) throw new Error("Failed to fetch conversations");
-      const data: unknown = await res.json();
-      if (!isConversationsListResponse(data))
-        throw new Error("Invalid conversations response");
-      return data.conversations;
-    },
+    queryFn: () =>
+      queryFactory("/api/conversations", {}, isConversationsListResponse).then(
+        (d) => d.conversations,
+      ),
   });
 
   return (
