@@ -27,6 +27,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 error instanceof Error &&
                 error.message.includes("USER_NOT_FOUND")
               ) {
+                handleUserNotFound(error);
                 return false;
               }
               return failureCount < 3;
