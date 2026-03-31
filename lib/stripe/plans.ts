@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PlanId } from "@/app/generated/prisma/client";
+import { PlanId } from "@/app/generated/prisma/enums";
 
 // Re-export as const for client-side usage (Prisma enum can't be imported in client components)
 export const PLAN_ID = {
