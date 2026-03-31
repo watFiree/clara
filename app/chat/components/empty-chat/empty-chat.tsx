@@ -22,7 +22,7 @@ const useIsMounted = () =>
   );
 
 interface NewChatProps {
-  onPromptSelect?: (message: string, promptId: string) => void;
+  onPromptSelect: (message: string, promptId: string) => void;
 }
 
 export const EmptyChat = ({ onPromptSelect }: NewChatProps) => {
@@ -118,7 +118,7 @@ export const EmptyChat = ({ onPromptSelect }: NewChatProps) => {
               prompt={prompt}
               index={index}
               show={showRest}
-              onClick={() => onPromptSelect?.(prompt.message, prompt.id)}
+              onClick={() => onPromptSelect(prompt.message, prompt.id)}
             />
           ))}
         </div>

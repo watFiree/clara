@@ -33,7 +33,10 @@ export const ChatInput = ({
   text: string;
   status: ChatStatus;
   isSubmitDisabled: boolean;
-  onSubmit: (message: PromptInputMessage) => void;
+  onSubmit: (
+    message: PromptInputMessage,
+    metadata?: Record<string, unknown>,
+  ) => void;
   onTextChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onTranscriptionChange: (transcript: string) => void;
 }) => {
@@ -43,7 +46,7 @@ export const ChatInput = ({
       <PromptInput
         globalDrop
         multiple
-        onSubmit={onSubmit}
+        onSubmit={(e) => onSubmit(e)}
         className="**:data-[slot=input-group]:rounded-xl"
       >
         <PromptInputHeader>
