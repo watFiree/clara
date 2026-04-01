@@ -1,7 +1,10 @@
 import { Language } from "@/app/generated/prisma/browser";
 import type { ErrorCode } from "./codes";
 
-export const ErrorTranslations: Record<ErrorCode, Record<Language, string>> = {
+export const ErrorTranslations: Record<
+  Exclude<ErrorCode, "UNKNOWN">,
+  Record<Language, string>
+> = {
   CONVERSATIONS_LIMIT_REACHED: {
     en: "You've reached the limit of conversations. No worries — your current chats will be merged. Sign up for free and enjoy unlimited conversations with Clara!",
     es: "Has alcanzado el límite de conversaciones. No te preocupes, tus chats actuales se fusionarán. ¡Regístrate gratis y disfruta de conversaciones ilimitadas con Clara!",
