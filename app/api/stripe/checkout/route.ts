@@ -4,8 +4,16 @@ import { getUser } from "@/lib/auth";
 import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { prisma } from "@/lib/prisma";
 import { getStripeServer } from "@/lib/stripe";
+import { getPlanByPriceId } from "@/lib/stripe/helpers";
 
 async function createCheckoutSession(priceId: string) {
+  const plan = await getPlanByPriceId(priceId);
+  if (!plan) {
+    return {
+      error: NextResponse.json({ error: "Invalid price ID" }, { status: 400 }),
+    };
+  }
+
   const user = await getUser();
   if (!user) return { error: ErrorFactory("USER_NOT_FOUND") };
 
