@@ -35,5 +35,11 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/chat/:path*", "/api/:path*", "/setup"],
+  matcher: [
+    /*
+     * Match all paths except Next.js internals and static assets.
+     * _next, static files (images, fonts, etc.) are excluded.
+     */
+    "/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+  ],
 };
