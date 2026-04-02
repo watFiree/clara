@@ -9,4 +9,5 @@ export type MemoryConfig = z.infer<typeof memoryConfigSchema>;
 export interface MemoryAccessCheck {
   allowed: boolean;
   reason?: string;
+  memoryLimit?: number;
 }

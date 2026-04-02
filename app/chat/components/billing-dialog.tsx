@@ -21,6 +21,7 @@ import {
 } from "@/lib/types/subscription";
 import { isStripeUrlResponse } from "@/lib/types/stripe";
 
+
 interface BillingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -50,14 +51,8 @@ export const BillingDialog = ({ open, onOpenChange }: BillingDialogProps) => {
     if (isStripeUrlResponse(data) && data.url) window.location.href = data.url;
   };
 
-  const handleUpgrade = async (priceId: string) => {
-    const res = await fetch("/api/stripe/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priceId }),
-    });
-    const data: unknown = await res.json();
-    if (isStripeUrlResponse(data) && data.url) window.location.href = data.url;
+  const handleUpgrade = (priceId: string) => {
+    window.location.assign(`/api/stripe/checkout?priceId=${encodeURIComponent(priceId)}`);
   };
 
   const currentPlan = plansMap

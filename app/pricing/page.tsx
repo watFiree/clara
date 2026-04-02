@@ -1,11 +1,13 @@
 import { BrandLogo } from "@/components/brand-logo";
+import { getUser } from "@/lib/auth";
 import { getPlans } from "@/lib/stripe/helpers";
 import { PricingCards } from "./pricing-cards";
 
 export const dynamic = "force-dynamic";
 
 export default async function PricingPage() {
-  const plans = await getPlans();
+  const [plans, user] = await Promise.all([getPlans(), getUser()]);
+  const isLocalUser = !user || user.authProvider === "local";
 
   return (
     <div className="flex min-h-screen flex-col items-center bg-background px-4 py-16">
@@ -20,7 +22,7 @@ export default async function PricingPage() {
         Start free and upgrade when you need more support from Clara
       </p>
 
-      <PricingCards plans={plans} />
+      <PricingCards plans={plans} isLocalUser={isLocalUser} />
     </div>
   );
 }

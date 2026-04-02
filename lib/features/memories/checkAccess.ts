@@ -13,5 +13,5 @@ export async function checkMemoryAccess(
     };
   }
 
-  return { allowed: true };
+  return { allowed: true, memoryLimit: result.config?.memoryLimit };
 }
