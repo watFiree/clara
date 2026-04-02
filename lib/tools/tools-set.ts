@@ -23,7 +23,7 @@ export const createToolsSet = async ({
   if (memoryEnabled === true) {
     const memoryAccess = await checkMemoryAccess(userId);
     if (memoryAccess.allowed) {
-      tools.saveMemory = createSaveMemoryTool(userId, conversationId);
+      tools.saveMemory = createSaveMemoryTool(userId, conversationId, memoryAccess.memoryLimit);
       tools.getMemories = createGetMemoriesTool(userId);
       tools.updateMemory = createUpdateMemoryTool(userId);
     }

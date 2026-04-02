@@ -205,3 +205,7 @@ export async function deleteMemory(
     where: { id: memoryId, userId },
   });
 }
+
+export async function getMemoryCount(userId: string): Promise<number> {
+  return prisma.memory.count({ where: { userId } });
+}

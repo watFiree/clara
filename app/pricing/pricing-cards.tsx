@@ -12,22 +12,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { type Plan } from "@/lib/stripe/plans";
-import { isStripeUrlResponse } from "@/lib/types/stripe";
 import Link from "next/link";
 
 interface PricingCardsProps {
   plans: Plan[];
+  isLocalUser: boolean;
 }
 
-export function PricingCards({ plans }: PricingCardsProps) {
-  const handleCheckout = async (priceId: string) => {
-    const res = await fetch("/api/stripe/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priceId }),
-    });
-    const data: unknown = await res.json();
-    if (isStripeUrlResponse(data) && data.url) window.location.assign(data.url);
+export function PricingCards({ plans, isLocalUser }: PricingCardsProps) {
+  const handleCta = (priceId: string) => {
+    if (isLocalUser) {
+      const returnTo = `/api/stripe/checkout?priceId=${encodeURIComponent(priceId)}`;
+      window.location.assign(`/auth/login?returnTo=${encodeURIComponent(returnTo)}`);
+    } else {
+      window.location.assign(`/api/stripe/checkout?priceId=${encodeURIComponent(priceId)}`);
+    }
   };
 
   return (
@@ -77,7 +76,7 @@ export function PricingCards({ plans }: PricingCardsProps) {
               <Button
                 className="w-full"
                 variant={plan.highlighted ? "default" : "outline"}
-                onClick={() => handleCheckout(plan.stripePriceId!)}
+                onClick={() => handleCta(plan.stripePriceId!)}
               >
                 Get {plan.name}
               </Button>
