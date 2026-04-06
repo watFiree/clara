@@ -60,7 +60,7 @@ export function isUpdateSettingsBody(
     return false;
   if ("memoryEnabled" in data && typeof data.memoryEnabled !== "boolean")
     return false;
-  if ("language" in data && isLanguage(data.language)) return false;
+  if ("language" in data && !isLanguage(data.language)) return false;
   if (
     "ageRange" in data &&
     typeof data.ageRange !== "string" &&
