@@ -9,14 +9,25 @@ export async function getUser() {
   if (isCloudMode) {
     const { user: workosUser } = await withAuth();
     if (workosUser) {
-      const user = await prisma.user.findUnique({
+      const existing = await prisma.user.findUnique({
         where: { providerId: workosUser.id },
       });
-      if (user) return user;
+      if (existing) return existing;
+      // Self-heal: WorkOS session is valid but the DB row is missing
+      // (e.g. manually deleted, partial migration). Recreate it instead
+      // of silently falling through to the anon-cookie path. upsert
+      // avoids a P2002 race if two requests hit this branch at once.
+      return prisma.user.upsert({
+        where: { providerId: workosUser.id },
+        create: { authProvider: "workos", providerId: workosUser.id },
+        update: {},
+      });
     }
+    // No WorkOS session. Fall through to the anon-cookie path below —
+    // unauthenticated users in cloud mode still use the anon cookie.
   }
 
-  // Fallback: anonymous cookie (works in both modes)
+  // Anonymous cookie (unauthenticated cloud mode, or local mode)
   const cookieStore = await cookies();
   const cookieId = cookieStore.get(COOKIE_NAME)?.value;
 

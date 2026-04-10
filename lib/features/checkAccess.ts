@@ -17,7 +17,9 @@ export async function checkFeatureAccess<K extends FeatureKey>(
     where: { userId },
   });
   const planId: PlanId =
-    (subscription?.status === "active" ? subscription.plan : null) ?? "free";
+    subscription && subscription.currentPeriodEnd > new Date()
+      ? subscription.plan
+      : "free";
 
   const feature = await prisma.feature.findUnique({
     where: { key_planId: { key: featureKey, planId } },

@@ -15,7 +15,10 @@ export async function checkUsageLimit(userId: string): Promise<UsageCheck> {
     where: { userId },
   });
 
-  const plan: PlanId = subscription?.plan ?? PLAN_ID.free;
+  const now = new Date();
+  const isActive = !!subscription && subscription.currentPeriodEnd > now;
+
+  const plan: PlanId = isActive ? subscription.plan : PLAN_ID.free;
   const dbPlan = await getPlanById(plan);
   const freePlan = dbPlan ? null : await getPlanById(PLAN_ID.free);
   const limit = dbPlan?.tokenLimit ?? freePlan?.tokenLimit ?? 150_000;
@@ -23,12 +26,11 @@ export async function checkUsageLimit(userId: string): Promise<UsageCheck> {
   let periodStart: Date;
   let periodEnd: Date;
 
-  if (subscription) {
+  if (isActive) {
     periodStart = subscription.currentPeriodStart;
     periodEnd = subscription.currentPeriodEnd;
   } else {
     // Free tier: rolling 30-day window
-    const now = new Date();
     periodEnd = now;
     const monthBack = new Date(now);
     monthBack.setMonth(monthBack.getMonth() - 1);

@@ -18,7 +18,6 @@ export const UsageWarning = () => {
   const { data: subscription } = useQuery<SubscriptionResponse>({
     queryKey: ["subscription"],
     queryFn: () => queryFactory("/api/subscription", {}, isSubscriptionResponse),
-    refetchInterval: 60_000,
   });
 
   if (!subscription) return null;
