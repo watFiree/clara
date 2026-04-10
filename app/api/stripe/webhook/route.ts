@@ -158,11 +158,13 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   });
   if (!user) return;
 
+  const period = getSubscriptionPeriod(subscription);
+
   await prisma.subscription.update({
     where: { userId: user.id },
     data: {
       status: "canceled",
-      currentPeriodEnd: new Date(),
+      currentPeriodEnd: period.end,
     },
   });
 }
