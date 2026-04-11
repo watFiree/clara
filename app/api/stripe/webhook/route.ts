@@ -43,11 +43,6 @@ export async function POST(req: Request) {
         await handleSubscriptionDeleted(subscription);
         break;
       }
-      case "invoice.paid": {
-        const invoice = event.data.object as Stripe.Invoice;
-        await handleInvoicePaid(invoice);
-        break;
-      }
     }
   } catch (err) {
     console.error(`Webhook handler failed for ${event.type}:`, err);
@@ -163,42 +158,14 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   });
   if (!user) return;
 
-  await prisma.subscription.update({
-    where: { userId: user.id },
-    data: { status: "canceled" },
-  });
-}
-
-async function handleInvoicePaid(invoice: Stripe.Invoice) {
-
-  const customerId =
-    typeof invoice.customer === "string"
-      ? invoice.customer
-      : invoice.customer?.id;
-  if (!customerId) return;
-
-  const user = await prisma.user.findUnique({
-    where: { stripeCustomerId: customerId },
-  });
-  if (!user) return;
-
-  // In newer Stripe API, subscription is under parent.subscription_details
-  const subscriptionId =
-    invoice.parent?.subscription_details?.subscription ?? null;
-  if (!subscriptionId) return;
-
-  const subId =
-    typeof subscriptionId === "string" ? subscriptionId : subscriptionId.id;
-
-  const stripeSubscription =
-    await getStripeServer().subscriptions.retrieve(subId);
-  const period = getSubscriptionPeriod(stripeSubscription);
+  const period = getSubscriptionPeriod(subscription);
 
   await prisma.subscription.update({
     where: { userId: user.id },
     data: {
-      currentPeriodStart: period.start,
+      status: "canceled",
       currentPeriodEnd: period.end,
     },
   });
 }
+

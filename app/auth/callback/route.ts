@@ -1,6 +1,8 @@
+import { cookies } from "next/headers";
 import { handleAuth } from "@workos-inc/authkit-nextjs";
 
 import { prisma } from "@/lib/prisma";
+import { COOKIE_NAME } from "@/config";
 
 export const GET = handleAuth({
   returnPathname: "/chat",
@@ -45,5 +47,10 @@ export const GET = handleAuth({
         }
       }
     }
+
+    // The anon cookie now points to a deleted (or unrelated) user row.
+    // Clear it so getUser()'s fallback path can't hit a stale ID if the
+    // WorkOS session ever returns null on a later request.
+    (await cookies()).delete(COOKIE_NAME);
   },
 });
