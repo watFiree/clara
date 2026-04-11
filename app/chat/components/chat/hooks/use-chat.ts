@@ -39,7 +39,7 @@ export const useChat = () => {
         }
       },
       onFinish: ({ message }) => {
-        queryClient.invalidateQueries({ queryKey: ["subscription"], refetchType: "none" });
+        queryClient.invalidateQueries({ queryKey: ["subscription"] });
         const hasMemoryMutation = message.parts.some(
           (part) => isSaveMemoryToolPart(part) || isUpdateMemoryToolPart(part),
         );
