@@ -8,6 +8,7 @@ import { checkUsageLimit } from "@/lib/stripe/usage";
 import { getStartOfDayUTC } from "@/lib/utils/date";
 import { createMessage, upsertMessage } from "@/lib/services/message-service";
 import { createToolsSet } from "@/lib/tools/tools-set";
+import { checkMemoryAccess } from "@/lib/features/memories/checkAccess";
 import { getModelForUser, getModel } from "@/lib/features/model/helpers";
 import { isChatRequestBody } from "@/lib/types/api";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -117,15 +118,19 @@ export async function POST(req: Request) {
       !!userSettings?.memoryEnabled && !conversationSettings?.memoryDisabled;
 
     const { checkJournalAccess } = await import("@/lib/features/journal/checkAccess");
-    const journalAccess = await checkJournalAccess(user.id);
+    const [memoryAccess, journalAccess] = await Promise.all([
+      memoryEnabled ? checkMemoryAccess(user.id) : Promise.resolve({ allowed: false as const }),
+      checkJournalAccess(user.id),
+    ]);
+
     const journalReadEnabled = !!(journalAccess.allowed && journalAccess.readToolEnabled);
     const journalUpdateEnabled = !!(journalAccess.allowed && journalAccess.updateToolEnabled);
 
     const tools = await createToolsSet({
       userId: user.id,
       conversationId: id,
-      memoryEnabled,
-      journalEnabled: true,
+      memoryAccess,
+      journalAccess,
     });
 
     const { provider, modelId } = await getModelForUser(user.id);

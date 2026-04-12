@@ -12,8 +12,8 @@ export type JournalConfig = z.infer<typeof journalConfigSchema>;
 export interface JournalAccessCheck {
   allowed: boolean;
   reason?: string;
-  monthlyGenerationLimit?: number;
-  canEdit?: boolean;
-  readToolEnabled?: boolean;
-  updateToolEnabled?: boolean;
+  monthlyGenerationLimit: number;
+  canEdit: boolean;
+  readToolEnabled: boolean;
+  updateToolEnabled: boolean;
 }

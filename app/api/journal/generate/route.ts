@@ -3,10 +3,7 @@ import { generateText } from "ai";
 import { getUser } from "@/lib/auth";
 import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { checkJournalAccess } from "@/lib/features/journal/checkAccess";
-import {
-  getMonthlyGenerationCount,
-  recordGeneration,
-} from "@/lib/services/journal/service";
+import { reserveJournalGeneration } from "@/lib/services/journal/service";
 import { getMessages } from "@/lib/services/message-service";
 import { getModelForUser, getModel } from "@/lib/features/model/helpers";
 import { getPromptSections } from "@/lib/prompts/cache";
@@ -32,16 +29,17 @@ export async function POST(req: Request) {
     const limit = access.monthlyGenerationLimit ?? -1;
 
     if (limit !== -1) {
-      const count = await getMonthlyGenerationCount(
+      const reservation = await reserveJournalGeneration(
         user.id,
         now.getUTCFullYear(),
         now.getUTCMonth() + 1,
+        limit,
       );
-      if (count >= limit) {
+      if (!reservation.reserved) {
         return NextResponse.json(
           {
             error: "generation_limit_reached",
-            used: count,
+            used: reservation.used,
             limit,
             upgrade: true,
           },
@@ -96,8 +94,6 @@ export async function POST(req: Request) {
       system: systemPrompt,
       prompt: `Here is the conversation to base the journal entry on:\n\n${conversationText}`,
     });
-
-    await recordGeneration(user.id);
 
     return NextResponse.json({ content: result.text });
   } catch (error) {

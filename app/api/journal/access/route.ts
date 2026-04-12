@@ -27,7 +27,7 @@ export async function GET() {
     return NextResponse.json({
       monthlyGenerationLimit: access.monthlyGenerationLimit ?? -1,
       monthlyGenerationCount: count,
-      canEdit: access.canEdit ?? false,
+      canEdit: access.canEdit,
     });
   } catch (error) {
     console.error("Failed to check journal access:", error);

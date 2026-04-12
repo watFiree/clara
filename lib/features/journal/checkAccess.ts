@@ -9,6 +9,10 @@ export async function checkJournalAccess(
   if (!result.allowed) {
     return {
       allowed: false,
+      monthlyGenerationLimit: 0,
+      canEdit: false,
+      readToolEnabled: false,
+      updateToolEnabled: false,
       reason: result.reason,
     };
   }
