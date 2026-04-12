@@ -72,7 +72,14 @@ export async function DELETE(
     }
 
     const { date } = await params;
-    await deleteJournalEntry(user.id, new Date(date));
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return NextResponse.json(
+        { error: "Invalid date format" },
+        { status: 400 },
+      );
+    }
+    await deleteJournalEntry(user.id, parsedDate);
 
     return NextResponse.json({ success: true });
   } catch (error) {
