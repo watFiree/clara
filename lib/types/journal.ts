@@ -20,22 +20,33 @@ export interface JournalGenerateResponse {
   content: string;
 }
 
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null;
+
 export function isJournalEntryResponse(
   data: unknown,
 ): data is { entry: JournalEntryResponse | null } {
-  if (typeof data !== "object" || data === null) return false;
-  if (!("entry" in data)) return false;
-  return true;
+  if (!isRecord(data) || !("entry" in data)) return false;
+  const entry = data.entry;
+  if (entry === null) return true;
+  if (!isRecord(entry)) return false;
+  return (
+    typeof entry.id === "string" &&
+    typeof entry.date === "string" &&
+    typeof entry.content === "string" &&
+    typeof entry.createdAt === "string" &&
+    typeof entry.updatedAt === "string"
+  );
 }
 
 export function isJournalDatesResponse(
   data: unknown,
 ): data is JournalDatesResponse {
   return (
-    typeof data === "object" &&
-    data !== null &&
+    isRecord(data) &&
     "dates" in data &&
-    Array.isArray(data.dates)
+    Array.isArray(data.dates) &&
+    data.dates.every((d) => typeof d === "string")
   );
 }
 
@@ -43,11 +54,13 @@ export function isJournalAccessResponse(
   data: unknown,
 ): data is JournalAccessResponse {
   return (
-    typeof data === "object" &&
-    data !== null &&
+    isRecord(data) &&
     "monthlyGenerationLimit" in data &&
     "monthlyGenerationCount" in data &&
-    "canEdit" in data
+    "canEdit" in data &&
+    typeof data.monthlyGenerationLimit === "number" &&
+    typeof data.monthlyGenerationCount === "number" &&
+    typeof data.canEdit === "boolean"
   );
 }
 
