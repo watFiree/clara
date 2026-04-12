@@ -24,7 +24,14 @@ export async function GET(
     }
 
     const { date } = await params;
-    const entry = await getJournalEntry(user.id, new Date(date));
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      return NextResponse.json(
+        { error: "Invalid date format" },
+        { status: 400 },
+      );
+    }
+    const entry = await getJournalEntry(user.id, parsedDate);
 
     if (!entry) {
       return NextResponse.json({ entry: null });
