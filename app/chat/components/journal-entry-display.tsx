@@ -70,6 +70,7 @@ export const JournalEntryEmpty = ({
     weekday: "long",
     month: "long",
     day: "numeric",
+    timeZone: "UTC",
   });
 
   return (
