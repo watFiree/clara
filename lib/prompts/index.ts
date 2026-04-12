@@ -11,7 +11,11 @@ import { getPromptSections } from "./cache";
  */
 export async function buildSystemPrompt(
   settings?: UserSettings | null,
-  overrides?: { memoryEnabled?: boolean },
+  overrides?: {
+    memoryEnabled?: boolean;
+    journalReadEnabled?: boolean;
+    journalUpdateEnabled?: boolean;
+  },
 ): Promise<string> {
   const sections = await getPromptSections();
 
@@ -23,12 +27,17 @@ export async function buildSystemPrompt(
     sections[PromptSectionKey.CLOSING],
   ];
 
+  const journalOptions = {
+    journalReadEnabled: overrides?.journalReadEnabled,
+    journalUpdateEnabled: overrides?.journalUpdateEnabled,
+  };
+
   if (settings) {
     parts.push(buildUserContext(settings));
     const memoryEnabled = overrides?.memoryEnabled ?? settings.memoryEnabled;
-    parts.push(buildToolInstructions(memoryEnabled, sections));
+    parts.push(buildToolInstructions(memoryEnabled, sections, journalOptions));
   } else {
-    parts.push(buildToolInstructions(false, sections));
+    parts.push(buildToolInstructions(false, sections, journalOptions));
   }
 
   return parts.join("\n\n");

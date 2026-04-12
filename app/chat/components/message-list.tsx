@@ -23,10 +23,15 @@ import {
   isSaveMemoryToolPart,
   isGetMemoriesToolPart,
   isUpdateMemoryToolPart,
+  isReadJournalToolPart,
+  isUpdateJournalToolPart,
 } from "@/lib/tools/helpers";
 import { SaveMemoryIndicator } from "./save-memory-indicator";
 import { GetMemoriesIndicator } from "./get-memories-indicator";
 import { UpdateMemoryIndicator } from "./update-memory-indicator";
+import { ReadJournalIndicator } from "./read-journal-indicator";
+import { UpdateJournalApproval } from "./update-journal-approval";
+import type { UpdateJournalOutput } from "@/lib/tools/update-journal/consts";
 import { PromptMessageCard } from "./prompt-message-card";
 
 function hasPromptId(
@@ -40,11 +45,18 @@ function hasPromptId(
   );
 }
 
-type AddToolOutput = (args: {
-  tool: "askQuestions";
-  toolCallId: string;
-  output: AskQuestionsOutput;
-}) => void;
+type AddToolOutput = (args:
+  | {
+      tool: "askQuestions";
+      toolCallId: string;
+      output: AskQuestionsOutput;
+    }
+  | {
+      tool: "updateJournal";
+      toolCallId: string;
+      output: UpdateJournalOutput;
+    }
+) => void;
 
 
 const ThinkingIndicator = () => (
@@ -98,6 +110,21 @@ export const AssistantParts = ({
         }
         if (isUpdateMemoryToolPart(part)) {
           return <UpdateMemoryIndicator key={`${message.id}-${i}`} part={part} />;
+        }
+        if (isReadJournalToolPart(part)) {
+          return <ReadJournalIndicator key={`${message.id}-${i}`} part={part} />;
+        }
+        if (isUpdateJournalToolPart(part)) {
+          return (
+            <UpdateJournalApproval
+              key={`${message.id}-${i}`}
+              toolCallId={part.toolCallId}
+              input={part.input}
+              state={part.state}
+              output={part.output}
+              addToolOutput={addToolOutput}
+            />
+          );
         }
         if (isAskQuestionsToolPart(part)) {
           return (

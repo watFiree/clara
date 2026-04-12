@@ -4,15 +4,18 @@ import { ASK_QUESTIONS_INSTRUCTIONS } from "./ask-questions";
 import { SAVE_MEMORY_INSTRUCTIONS } from "./save-memory";
 import { GET_MEMORIES_INSTRUCTIONS } from "./get-memories";
 import { UPDATE_MEMORY_INSTRUCTIONS } from "./update-memory";
+import { READ_JOURNAL_INSTRUCTIONS } from "./read-journal";
+import { UPDATE_JOURNAL_INSTRUCTIONS } from "./update-journal";
 
 /**
  * Build tool usage instructions section.
- * Always includes askQuestions; memory tools only when memory is enabled.
+ * Always includes askQuestions; memory/journal tools conditionally.
  * Uses externally configured sections when provided, falls back to hardcoded defaults.
  */
 export function buildToolInstructions(
   memoryEnabled: boolean,
   sections?: Partial<Record<PromptSectionKey, string>>,
+  options?: { journalReadEnabled?: boolean; journalUpdateEnabled?: boolean },
 ): string {
   const parts = [
     "# Tool usage instructions\n",
@@ -28,6 +31,20 @@ export function buildToolInstructions(
         SAVE_MEMORY_INSTRUCTIONS,
       sections?.[PromptSectionKey.TOOLS_UPDATE_MEMORY] ??
         UPDATE_MEMORY_INSTRUCTIONS,
+    );
+  }
+
+  if (options?.journalReadEnabled) {
+    parts.push(
+      sections?.[PromptSectionKey.TOOLS_READ_JOURNAL] ??
+        READ_JOURNAL_INSTRUCTIONS,
+    );
+  }
+
+  if (options?.journalUpdateEnabled) {
+    parts.push(
+      sections?.[PromptSectionKey.TOOLS_UPDATE_JOURNAL] ??
+        UPDATE_JOURNAL_INSTRUCTIONS,
     );
   }
 

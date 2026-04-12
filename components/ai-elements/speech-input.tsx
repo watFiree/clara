@@ -190,7 +190,7 @@ export const SpeechInput = ({
         }
       }
     },
-    []
+    [],
   );
 
   // Start MediaRecorder recording
@@ -304,12 +304,13 @@ export const SpeechInput = ({
 
       {/* Main record button */}
       <Button
+        type="button"
         className={cn(
           "relative z-10 rounded-full transition-all duration-300",
           isListening
             ? "bg-destructive text-white hover:bg-destructive/80 hover:text-white"
             : "bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground",
-          className
+          className,
         )}
         disabled={isDisabled}
         onClick={toggleListening}

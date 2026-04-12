@@ -116,10 +116,16 @@ export async function POST(req: Request) {
     const memoryEnabled =
       !!userSettings?.memoryEnabled && !conversationSettings?.memoryDisabled;
 
+    const { checkJournalAccess } = await import("@/lib/features/journal/checkAccess");
+    const journalAccess = await checkJournalAccess(user.id);
+    const journalReadEnabled = !!(journalAccess.allowed && journalAccess.readToolEnabled);
+    const journalUpdateEnabled = !!(journalAccess.allowed && journalAccess.updateToolEnabled);
+
     const tools = await createToolsSet({
       userId: user.id,
       conversationId: id,
       memoryEnabled,
+      journalEnabled: true,
     });
 
     const { provider, modelId } = await getModelForUser(user.id);
@@ -128,7 +134,11 @@ export async function POST(req: Request) {
     const result = streamText({
       model,
       messages: await convertToModelMessages(messages),
-      system: await buildSystemPrompt(userSettings, { memoryEnabled }),
+      system: await buildSystemPrompt(userSettings, {
+        memoryEnabled,
+        journalReadEnabled,
+        journalUpdateEnabled,
+      }),
       stopWhen: stepCountIs(Object.keys(tools).length * 2), //TODO: there is an edge case error when llm uses only tools the number of times it stops. In this case useChat sends messages again where last message is assistant parts with these toolcall -> it causes the same assisant message to be saved in database what then throws error when sending to llm (same 2 assistant messages next to eaach other)
       tools,
       async onFinish({ usage }) {

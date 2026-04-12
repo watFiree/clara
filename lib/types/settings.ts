@@ -118,3 +118,12 @@ export const LANGUAGE_OPTIONS: readonly { value: Language; label: string }[] = [
   { value: Language.pl, label: "Polish" },
   { value: Language.pt, label: "Portuguese" },
 ];
+
+export const LANGUAGE_LOCALE: Record<Language, string> = {
+  [Language.en]: "en-US",
+  [Language.es]: "es-ES",
+  [Language.fr]: "fr-FR",
+  [Language.de]: "de-DE",
+  [Language.pl]: "pl-PL",
+  [Language.pt]: "pt-PT",
+};
