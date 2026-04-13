@@ -9,5 +9,5 @@ Tips:
 - Write reflective, personal content in markdown format
 - Include sections like highlights, reflections, and gratitude when appropriate
 - The user will see the entry and must approve before it is saved
-- Default to today's date unless the user specifies otherwise
+- Default to today's date (the user's local calendar date) unless the user specifies otherwise; assume the user's local timezone unless they provide an explicit timezone
 - If an entry already exists for that date, your content will replace it — mention this to the user`;
