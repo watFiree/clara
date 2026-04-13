@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
 import { type ChatStatus } from "ai";
 import {
@@ -9,18 +10,22 @@ import {
   PromptInputActionMenuContent,
   PromptInputActionMenuTrigger,
   PromptInputBody,
+  PromptInputButton,
   PromptInputFooter,
   PromptInputHeader,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
-import { SpeechInput } from "@/components/ai-elements/speech-input";
+import { ChatSpeechInput } from "./chat-speech-input";
+import { NotebookPenIcon } from "lucide-react";
 
 import { PromptInputAttachmentsDisplay } from "../attachment-display";
 import { MemoryToggle } from "./memory-toggle";
+import { GenerateJournalDialog } from "./generate-journal-dialog";
 import { UsageWarning } from "@/components/usage-warning";
 import { isCloudMode } from "@/config";
+import { useChatStore } from "@/lib/store/chat-store";
 
 export const ChatInput = ({
   text,
@@ -40,6 +45,9 @@ export const ChatInput = ({
   onTextChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onTranscriptionChange: (transcript: string) => void;
 }) => {
+  const activeConversationId = useChatStore((s) => s.activeConversationId);
+  const [journalDialogOpen, setJournalDialogOpen] = useState(false);
+
   return (
     <div className="w-full relative p-4">
       {isCloudMode && <UsageWarning />}
@@ -61,10 +69,18 @@ export const ChatInput = ({
               <PromptInputActionMenuTrigger />
               <PromptInputActionMenuContent>
                 <PromptInputActionAddAttachments />
-                <MemoryToggle />
               </PromptInputActionMenuContent>
             </PromptInputActionMenu>
-            <SpeechInput
+            <MemoryToggle />
+            {activeConversationId && (
+              <PromptInputButton
+                tooltip="Generate journal entry"
+                onClick={() => setJournalDialogOpen(true)}
+              >
+                <NotebookPenIcon className="size-4" />
+              </PromptInputButton>
+            )}
+            <ChatSpeechInput
               className="shrink-0"
               onTranscriptionChange={onTranscriptionChange}
               size="icon-sm"
@@ -74,6 +90,14 @@ export const ChatInput = ({
           <PromptInputSubmit disabled={isSubmitDisabled} status={status} />
         </PromptInputFooter>
       </PromptInput>
+
+      {activeConversationId && (
+        <GenerateJournalDialog
+          open={journalDialogOpen}
+          onOpenChange={setJournalDialogOpen}
+          conversationId={activeConversationId}
+        />
+      )}
     </div>
   );
 };

@@ -2,8 +2,7 @@
 
 import { BrainIcon } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { PromptInputActionMenuItem } from "@/components/ai-elements/prompt-input";
-import { Switch } from "@/components/ui/switch";
+import { PromptInputButton } from "@/components/ai-elements/prompt-input";
 import { useChatStore } from "@/lib/store/chat-store";
 import { ApiError } from "@/lib/errors";
 import { queryFactory } from "@/lib/queryFactory";
@@ -74,8 +73,7 @@ export const MemoryToggle = () => {
     },
   });
 
-  const handleToggle = (e: Event) => {
-    e.preventDefault();
+  const handleToggle = () => {
     if (activeConversationId) {
       toggleMutation.mutate();
     } else {
@@ -84,22 +82,32 @@ export const MemoryToggle = () => {
   };
 
   return (
-    <PromptInputActionMenuItem
-      onSelect={handleToggle}
+    <PromptInputButton
+      tooltip={`Memory (${memoryDisabled ? "off" : "on"})`}
+      onClick={handleToggle}
       disabled={toggleMutation.isPending}
+      className={memoryDisabled ? "text-muted-foreground" : ""}
     >
-      <>
-        <div className="flex items-center gap-2">
-          <BrainIcon className="mr-2 size-4" />
-          <span>Memory ({memoryDisabled ? "off" : "on"})</span>
-        </div>
-        <Switch
-          size="sm"
-          className="ml-auto"
-          checked={!memoryDisabled}
-          // onCheckedChange={handleToggle}
-        />
-      </>
-    </PromptInputActionMenuItem>
+      <span className="relative">
+        <BrainIcon className="size-4" />
+        {memoryDisabled && (
+          <svg
+            className="absolute inset-0 size-4"
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+          >
+            <line
+              x1="2"
+              y1="14"
+              x2="14"
+              y2="2"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
+      </span>
+    </PromptInputButton>
   );
 };

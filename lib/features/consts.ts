@@ -2,10 +2,12 @@ import type { ZodType } from "zod";
 import { FeatureKey } from "@/app/generated/prisma/browser";
 import { MemoryConfig, memoryConfigSchema } from "./memories/consts";
 import { ModelConfig, modelConfigSchema } from "./model/consts";
+import { JournalConfig, journalConfigSchema } from "./journal/consts";
 
 export type FeatureConfigMap = {
   [FeatureKey.MEMORY]: MemoryConfig;
   [FeatureKey.MODEL]: ModelConfig;
+  [FeatureKey.JOURNAL]: JournalConfig;
 };
 
 type FeatureSchemaMap = {
@@ -29,4 +31,5 @@ export type FeatureAccess<K extends FeatureKey> =
 export const featureConfigSchemas: FeatureSchemaMap = {
   [FeatureKey.MEMORY]: memoryConfigSchema,
   [FeatureKey.MODEL]: modelConfigSchema,
+  [FeatureKey.JOURNAL]: journalConfigSchema,
 };

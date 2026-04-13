@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type ActiveView = null | "memories";
+export type ActiveView = null | "memories" | "journal";
 
 export interface ViewsStore {
   activeView: ActiveView;

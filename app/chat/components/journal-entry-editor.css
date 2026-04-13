@@ -1,0 +1,54 @@
+/* @uiw/react-md-editor overrides — scoped to .journal-editor */
+.journal-editor .w-md-editor {
+  background: var(--background);
+  color: var(--foreground);
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0;
+}
+
+.journal-editor .w-md-editor-toolbar {
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+  padding: 2px 8px;
+}
+
+.journal-editor .w-md-editor-toolbar li > button {
+  color: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+.journal-editor .w-md-editor-toolbar li > button:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.journal-editor .w-md-editor-toolbar li.active > button {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.journal-editor .w-md-editor-text-input {
+  overflow-y: auto;
+}
+
+.journal-editor .w-md-editor-text-input,
+.journal-editor .w-md-editor-text-pre > code,
+.journal-editor .w-md-editor-text-pre .token {
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.journal-editor .w-md-editor-text {
+  padding: 16px;
+  height: 100%;
+}
+
+.journal-editor .w-md-editor-preview {
+  padding: 16px;
+  border-left: 1px solid var(--border);
+}
+
+.journal-editor .w-md-editor-bar {
+  display: none;
+}

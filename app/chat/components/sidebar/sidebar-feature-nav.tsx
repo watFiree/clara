@@ -49,7 +49,12 @@ export const SidebarFeatureNav = ({ onItemClick }: SidebarFeatureNavProps) => {
       <SidebarItemButton
         icon={NotebookPenIcon}
         label="Journal"
-        status="coming-soon"
+        status="beta"
+        active={activeView === "journal"}
+        onClick={() => {
+          setActiveView("journal");
+          onItemClick?.();
+        }}
       />
       <SidebarItemButton
         icon={TargetIcon}

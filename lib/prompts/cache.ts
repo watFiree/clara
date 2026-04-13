@@ -10,6 +10,9 @@ import { ASK_QUESTIONS_INSTRUCTIONS } from "./tools/ask-questions";
 import { SAVE_MEMORY_INSTRUCTIONS } from "./tools/save-memory";
 import { GET_MEMORIES_INSTRUCTIONS } from "./tools/get-memories";
 import { UPDATE_MEMORY_INSTRUCTIONS } from "./tools/update-memory";
+import { READ_JOURNAL_INSTRUCTIONS } from "./tools/read-journal";
+import { UPDATE_JOURNAL_INSTRUCTIONS } from "./tools/update-journal";
+import { JOURNAL_GENERATE_PROMPT } from "./journal-generate";
 
 const DEFAULTS: Record<PromptSectionKey, string> = {
   [PromptSectionKey.ROLE]: ROLE,
@@ -21,6 +24,9 @@ const DEFAULTS: Record<PromptSectionKey, string> = {
   [PromptSectionKey.TOOLS_SAVE_MEMORY]: SAVE_MEMORY_INSTRUCTIONS,
   [PromptSectionKey.TOOLS_GET_MEMORIES]: GET_MEMORIES_INSTRUCTIONS,
   [PromptSectionKey.TOOLS_UPDATE_MEMORY]: UPDATE_MEMORY_INSTRUCTIONS,
+  [PromptSectionKey.TOOLS_READ_JOURNAL]: READ_JOURNAL_INSTRUCTIONS,
+  [PromptSectionKey.TOOLS_UPDATE_JOURNAL]: UPDATE_JOURNAL_INSTRUCTIONS,
+  [PromptSectionKey.JOURNAL_GENERATE]: JOURNAL_GENERATE_PROMPT,
 };
 
 let cache: Record<PromptSectionKey, string> | null = null;

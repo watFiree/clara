@@ -32,7 +32,7 @@ export async function createMemory(
     const userKey = await getOrCreateUserKey(userId);
     const signVector = await getOrCreateSignVector(userId, userKey);
     const embeddingText = contentToEmbeddingText(data.content);
-    const embedding = await generateEmbedding(embeddingText);
+    const embedding = await generateEmbedding(userId, embeddingText);
     const rotated = applySignFlip(embedding, signVector);
     const vectorStr = `[${rotated.join(",")}]`;
 
@@ -110,7 +110,7 @@ export async function searchMemories(
 
   const userKey = await getOrCreateUserKey(userId);
   const signVector = await getOrCreateSignVector(userId, userKey);
-  const queryEmbedding = await generateEmbedding(query);
+  const queryEmbedding = await generateEmbedding(userId, query);
   const rotatedQuery = applySignFlip(queryEmbedding, signVector);
   const vectorStr = `[${rotatedQuery.join(",")}]`;
 

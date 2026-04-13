@@ -30,6 +30,8 @@ model User {
   usage         Usage[]
   subscription  Subscription?
   memories             Memory[]
+  journalEntries       JournalEntry[]
+  journalGenerations   JournalGeneration[]
 }
 
 model Conversation {
@@ -123,6 +125,7 @@ enum PlanId {
 enum FeatureKey {
   MEMORY
   MODEL
+  JOURNAL
 }
 
 model Plan {
@@ -186,6 +189,9 @@ enum PromptSectionKey {
   TOOLS_SAVE_MEMORY
   TOOLS_GET_MEMORIES
   TOOLS_UPDATE_MEMORY
+  TOOLS_READ_JOURNAL
+  TOOLS_UPDATE_JOURNAL
+  JOURNAL_GENERATE
 }
 
 model PromptSection {
@@ -210,4 +216,25 @@ model UserSettings {
   focusAreas     String[] @default([])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model JournalEntry {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date             DateTime
+  encryptedContent String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, date])
+}
+
+model JournalGeneration {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }

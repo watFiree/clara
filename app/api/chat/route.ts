@@ -5,13 +5,14 @@ import { getUser } from "@/lib/auth";
 import { ErrorFactory } from "@/lib/errors/errorFactory";
 import { isCloudMode } from "@/config";
 import { checkUsageLimit } from "@/lib/stripe/usage";
-import { getStartOfDayUTC } from "@/lib/utils/date";
 import { createMessage, upsertMessage } from "@/lib/services/message-service";
 import { createToolsSet } from "@/lib/tools/tools-set";
+import { checkMemoryAccess } from "@/lib/features/memories/checkAccess";
 import { getModelForUser, getModel } from "@/lib/features/model/helpers";
 import { isChatRequestBody } from "@/lib/types/api";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { trackUsage } from "@/lib/usage/track";
 
 export const maxDuration = 30;
 
@@ -116,10 +117,20 @@ export async function POST(req: Request) {
     const memoryEnabled =
       !!userSettings?.memoryEnabled && !conversationSettings?.memoryDisabled;
 
+    const { checkJournalAccess } = await import("@/lib/features/journal/checkAccess");
+    const [memoryAccess, journalAccess] = await Promise.all([
+      memoryEnabled ? checkMemoryAccess(user.id) : Promise.resolve({ allowed: false as const }),
+      checkJournalAccess(user.id),
+    ]);
+
+    const journalReadEnabled = !!(journalAccess.allowed && journalAccess.readToolEnabled);
+    const journalUpdateEnabled = !!(journalAccess.allowed && journalAccess.updateToolEnabled);
+
     const tools = await createToolsSet({
       userId: user.id,
       conversationId: id,
-      memoryEnabled,
+      memoryAccess,
+      journalAccess,
     });
 
     const { provider, modelId } = await getModelForUser(user.id);
@@ -128,39 +139,20 @@ export async function POST(req: Request) {
     const result = streamText({
       model,
       messages: await convertToModelMessages(messages),
-      system: await buildSystemPrompt(userSettings, { memoryEnabled }),
+      system: await buildSystemPrompt(userSettings, {
+        memoryEnabled,
+        journalReadEnabled,
+        journalUpdateEnabled,
+      }),
       stopWhen: stepCountIs(Object.keys(tools).length * 2), //TODO: there is an edge case error when llm uses only tools the number of times it stops. In this case useChat sends messages again where last message is assistant parts with these toolcall -> it causes the same assisant message to be saved in database what then throws error when sending to llm (same 2 assistant messages next to eaach other)
       tools,
       async onFinish({ usage }) {
-        try {
-          const today = getStartOfDayUTC();
-          await prisma.usage.upsert({
-            where: {
-              userId_model_date: {
-                userId: user.id,
-                model: modelId,
-                date: today,
-              },
-            },
-            create: {
-              userId: user.id,
-              model: modelId,
-              date: today,
-              inputTokens: usage.inputTokens ?? 0,
-              outputTokens: usage.outputTokens ?? 0,
-              totalTokens: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
-            },
-            update: {
-              inputTokens: { increment: usage.inputTokens ?? 0 },
-              outputTokens: { increment: usage.outputTokens ?? 0 },
-              totalTokens: {
-                increment: (usage.inputTokens ?? 0) + (usage.outputTokens ?? 0),
-              },
-            },
-          });
-        } catch (err) {
-          console.error("Failed to save usage:", err);
-        }
+        await trackUsage({
+          userId: user.id,
+          model: modelId,
+          inputTokens: usage.inputTokens,
+          outputTokens: usage.outputTokens,
+        });
       },
     });
     return result.toUIMessageStreamResponse({
