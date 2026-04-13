@@ -9,6 +9,7 @@ import { getModelForUser, getModel } from "@/lib/features/model/helpers";
 import { getPromptSections } from "@/lib/prompts/cache";
 import { PromptSectionKey } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { trackUsage } from "@/lib/usage/track";
 
 export const maxDuration = 30;
 
@@ -93,6 +94,14 @@ export async function POST(req: Request) {
       model,
       system: systemPrompt,
       prompt: `Here is the conversation to base the journal entry on:\n\n${conversationText}`,
+      async onFinish({ usage }) {
+        await trackUsage({
+          userId: user.id,
+          model: modelId,
+          inputTokens: usage.inputTokens,
+          outputTokens: usage.outputTokens,
+        });
+      },
     });
 
     return NextResponse.json({ content: result.text });
