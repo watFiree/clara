@@ -62,7 +62,7 @@ export function UpdateJournalApproval({
         <NotebookPenIcon className="size-3.5" />
         <span>
           {output.saved
-            ? `Journal entry saved for ${input.date}`
+            ? `Journal entry saved for ${input?.date}`
             : "Journal entry was not saved"}
         </span>
       </span>
@@ -75,7 +75,7 @@ export function UpdateJournalApproval({
       const res = await fetch("/api/journal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: input.date, content }),
+        body: JSON.stringify({ date: input?.date, content }),
       });
 
       const saved = res.ok;
@@ -107,7 +107,7 @@ export function UpdateJournalApproval({
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm">
           <NotebookPenIcon className="size-4 text-primary" />
-          Journal entry for {input.date}
+          Journal entry for {input?.date}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
